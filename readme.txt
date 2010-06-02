@@ -22,7 +22,7 @@ Lets you create a content inventory, marking content as redundant/outdated/trivi
 
 == Changelog ==
 
-= 0.85b =
+= 0.9b =
 * Changed the way the content status taxonomy is created so that you can actually edit and delete the built-in categories.
 
 = 0.8b =

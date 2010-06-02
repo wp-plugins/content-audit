@@ -19,3 +19,11 @@ Lets you create a content inventory, marking content as redundant/outdated/trivi
 1. The options screen
 1. Edit pages, with the content audit columns and filter dropdowns
 1. Edit a page, with the content audit notes, owner, and status boxes
+
+== Changelog ==
+
+= 0.85b =
+* Changed the way the content status taxonomy is created so that you can actually edit and delete the built-in categories.
+
+= 0.8b =
+* First beta.

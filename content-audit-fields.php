@@ -3,7 +3,8 @@
 
 add_action('init', 'create_content_audit_tax');
 register_activation_hook( __FILE__, 'activate_content_audit_tax' );
- 
+register_activation_hook( __FILE__, 'activate_content_audit_terms' ); 
+
 function activate_content_audit_tax() {
 	create_content_audit_tax();
 	$GLOBALS['wp_rewrite']->flush_rules();
@@ -19,6 +20,9 @@ function create_content_audit_tax() {
 			'show_tagcloud' => false,
 		)
 	);
+}
+
+function create_content_audit_terms() {
 	wp_insert_term(__('Redundant'), 'content_audit');
 	wp_insert_term(__('Outdated'), 'content_audit');
 	wp_insert_term(__('Trivial'), 'content_audit');

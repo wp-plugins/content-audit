@@ -38,28 +38,30 @@ function content_audit_column_setup() {
 // rearrange the columns on the Edit screens
 function content_audit_columns($defaults) {
 	// preserve the original column headings
-	$comments = $defaults['comments'];
-	$date = $defaults['date'];
-	$cb = $defaults['cb'];
-	$cats = $defaults['categories'];
-	$tags = $defaults['tags'];
+	$original['comments'] = $defaults['comments'];
+	$original['date'] = $defaults['date'];
+	$original['cb'] = $defaults['cb'];
+	$original['cats'] = $defaults['categories'];
+	$original['tags'] = $defaults['tags'];
+	$original['analytics'] = $defaults['analytics'];
 	// remove default columns
 	unset($defaults['comments']);
 	unset($defaults['date']);
 	unset($defaults['cb']);
 	unset($defaults['categories']);
 	unset($defaults['tags']);
-	// insert content owner column
+	unset($defaults['analytics']);
+	// insert content owner and status taxonomy columns
 	$defaults['content_owner'] = __('Content Owner', 'content-audit');
-	// insert content audit taxonomy column
     $defaults['content_status'] = __('Content Status', 'content-audit');
 	// restore default columns
-	if (!empty($cats)) $defaults['categories'] = $cats;
-	if (!empty($tags)) $defaults['tags'] = $tags;
-	$defaults['comments'] = $comments;
-	$defaults['date'] = $date;
+	if (!empty($original['cats'])) $defaults['categories'] = $original['cats'];
+	if (!empty($original['tags'])) $defaults['tags'] = $original['tags'];
+	$defaults['comments'] = $original['comments'];
+	$defaults['date'] = $original['date'];
+	if (!empty($original['analytics'])) $defaults['analytics'] = $original['analytics'];
 	// restore checkbox, add ID as the second column, then add the rest
-    return array('cb' => $cb, 'ID' => __('ID'))+$defaults;
+    return array('cb' => $original['cb'], 'ID' => __('ID')) + $defaults;
 }
 
 // print the contents of the new Content Audit columns
@@ -82,7 +84,7 @@ function content_audit_custom_column($column_name, $id) {
 	}
 	elseif ($column_name == 'content_owner') {
 		$ownerID = get_post_meta($post->ID, "_content_audit_owner", true);
-		if (!empty($ownerID)) {
+		if (!empty($ownerID) && $ownerID > 0) {
 			if (!empty($_GET['post_type'])) $type = 'post_type='.$_GET['post_type'].'&';
 			else $type = '';
 			echo '<a href="edit.php?'.$type.'content_owner='.$ownerID.'">'.get_the_author_meta('display_name', $ownerID ).'</a>';

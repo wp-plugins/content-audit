@@ -72,10 +72,11 @@ function content_audit_owner_meta_box() {
 <div id="audit-owner">
 	<?php
 	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
+	if (empty($owner)) $owner = -1;
 	wp_dropdown_users( array(
 		'selected' => $owner, 
 		'name' => '_content_audit_owner', 
-		'show_option_none' => _e('Select a user','content-audit'),
+		'show_option_none' => __('Select a user','content-audit'),
 	)); ?>
 </div>
 <?php

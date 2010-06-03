@@ -6,6 +6,7 @@ register_activation_hook( __FILE__, 'activate_content_audit_tax' );
 
 function activate_content_audit_tax() {
 	create_content_audit_tax();
+	activate_content_audit_terms();
 	$GLOBALS['wp_rewrite']->flush_rules();
 }
 
@@ -19,13 +20,14 @@ function create_content_audit_tax() {
 			'show_tagcloud' => false,
 		)
 	);
-	if (wp_count_terms('content_audit') == 0) {
-		wp_insert_term(__('Redundant','content-audit'), 'content_audit');
-		wp_insert_term(__('Outdated','content-audit'), 'content_audit');
-		wp_insert_term(__('Trivial','content-audit'), 'content_audit');
-		wp_insert_term(__('Review SEO','content-audit'), 'content_audit');
-		wp_insert_term(__('Review Style','content-audit'), 'content_audit');
-	}
+}
+
+function activate_content_audit_terms() {
+	wp_insert_term(__('Redundant','content-audit'), 'content_audit');
+	wp_insert_term(__('Outdated','content-audit'), 'content_audit');
+	wp_insert_term(__('Trivial','content-audit'), 'content_audit');
+	wp_insert_term(__('Review SEO','content-audit'), 'content_audit');
+	wp_insert_term(__('Review Style','content-audit'), 'content_audit');
 }
 
 add_action('admin_init', 'content_audit_taxonomies');

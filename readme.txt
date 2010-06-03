@@ -5,7 +5,9 @@ Requires at least: 3.0
 Tested up to: 3.0
 Stable tag: 1.0
 
-Lets you create a content inventory, marking content as redundant/outdated/trivial, assigning content owners, and storing notes. You can display the notes to logged-in editors on the front end if you want.
+Lets you create a content inventory, marking content as redundant/outdated/trivial, assigning content owners, and storing notes. You can display the inventory details to logged-in editors on the front end if you want.
+
+Supports custom post types.
 
 == Installation ==
 

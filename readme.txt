@@ -3,7 +3,7 @@ Contributors: sillybean
 Tags: content, audit, review, inventory
 Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 0.9b
+Stable tag: 1.0
 
 Lets you create a content inventory, marking content as redundant/outdated/trivial, assigning content owners, and storing notes. You can display the notes to logged-in editors on the front end if you want.
 
@@ -21,6 +21,9 @@ Lets you create a content inventory, marking content as redundant/outdated/trivi
 1. Edit a page, with the content audit notes, owner, and status boxes
 
 == Changelog ==
+
+= 1.0 =
+* Out of beta!
 
 = 0.9b =
 * Changed the way the content status taxonomy is created so that you can actually edit and delete the built-in categories.

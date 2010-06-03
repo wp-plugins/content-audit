@@ -50,9 +50,9 @@ function content_audit_columns($defaults) {
 	unset($defaults['categories']);
 	unset($defaults['tags']);
 	// insert content owner column
-	$defaults['content_owner'] = __('Content Owner');
+	$defaults['content_owner'] = __('Content Owner', 'content-audit');
 	// insert content audit taxonomy column
-    $defaults['content_status'] = __('Content Status');
+    $defaults['content_status'] = __('Content Status', 'content-audit');
 	// restore default columns
 	if (!empty($cats)) $defaults['categories'] = $cats;
 	if (!empty($tags)) $defaults['tags'] = $tags;
@@ -101,7 +101,7 @@ function content_audit_restrict_content_status() {
 	if ($options['types'][$type] == '1') {
 		?>
 		<select name="content_audit" id="content_audit" class="postform">
-		<option value="0"><?php _e("Show all statuses"); ?></option>
+		<option value="0"><?php _e("Show all statuses", 'content-audit'); ?></option>
 	
 		<?php
 		$terms = get_terms( 'content_audit', '' );
@@ -128,7 +128,7 @@ function content_audit_restrict_content_owners() {
 		wp_dropdown_users(
 			array(
 				'include' => $editable_ids,
-				'show_option_all' => __('Show all owners'),
+				'show_option_all' => __('Show all owners', 'content-audit'),
 				'name' => 'content_owner',
 				'selected' => isset($_GET['content_owner']) ? $_GET['content_owner'] : 0
 			)
@@ -144,7 +144,7 @@ function content_audit_restrict_content_authors()
 	wp_dropdown_users(
 		array(
 			'include' => $editable_ids,
-			'show_option_all' => __('Show all authors'),
+			'show_option_all' => __('Show all authors', 'content-audit'),
 			'name' => 'author',
 			'selected' => isset($_GET['author']) ? $_GET['author'] : 0
 		)
@@ -170,13 +170,13 @@ function add_quickedit_content_owner($column_name, $type) {
 	<fieldset class="inline-edit-col-right">
 	    <div class="inline-edit-col">
 		<label class="inline-edit-status alignleft">
-			<span class="title"><?php _e("Content Owner"); ?></span>
+			<span class="title"><?php _e("Content Owner", 'content-audit'); ?></span>
 			<?php
 			$editable_ids = get_editable_user_ids( $user_ID );
 			wp_dropdown_users(
 				array(
 					'include' => $editable_ids,
-					'show_option_all' => __('None'),
+					'show_option_all' => __('None', 'content-audit'),
 					'name' => '_content_audit_owner',
 					'selected' => $owner
 				)
@@ -193,10 +193,10 @@ function content_audit_front_end_display($content) {
 	$options = get_option('content_audit');
 	if (!empty($options['display']) && (current_user_can($options['roles']))) {
 		global $post;
-		$out = '<p class="content-status">'.get_the_term_list($post->ID, 'content_audit', 'Content status: ', ', ','').'</p>';
+		$out = '<p class="content-status">'.get_the_term_list($post->ID, 'content_audit', __('Content status: ', 'content-audit'), ', ','').'</p>';
 		$ownerID = get_post_meta($post->ID, "_content_audit_owner", true);
 		if (!empty($ownerID)) {
-			$out .= '<p class="content-owner">'.__("Assigned to: ").get_the_author_meta('display_name', $ownerID).'</p>';
+			$out .= '<p class="content-owner">'.__("Assigned to: ", 'content-audit').get_the_author_meta('display_name', $ownerID).'</p>';
 		}
 		$out .= '<p class="content-notes">'.get_post_meta($post->ID, "_content_audit_notes", true).'</p>';
 		$out = '<div class="content-audit">'.$out.'</div>';

@@ -2,8 +2,7 @@
 /* Custom Taxonomy */
 
 add_action('init', 'create_content_audit_tax');
-register_activation_hook( __FILE__, 'activate_content_audit_tax' );
-register_activation_hook( __FILE__, 'activate_content_audit_terms' ); 
+register_activation_hook( __FILE__, 'activate_content_audit_tax' ); 
 
 function activate_content_audit_tax() {
 	create_content_audit_tax();
@@ -11,23 +10,22 @@ function activate_content_audit_tax() {
 }
 
 function create_content_audit_tax() {
-		register_taxonomy(
+	register_taxonomy(
 		'content_audit',
 		'page',
 		array(
-			'label' => __('Content Audit'),
+			'label' => __('Content Audit', 'content-audit'),
 			'hierarchical' => true,
 			'show_tagcloud' => false,
 		)
 	);
-}
-
-function create_content_audit_terms() {
-	wp_insert_term(__('Redundant'), 'content_audit');
-	wp_insert_term(__('Outdated'), 'content_audit');
-	wp_insert_term(__('Trivial'), 'content_audit');
-	wp_insert_term(__('Review SEO'), 'content_audit');
-	wp_insert_term(__('Review Style'), 'content_audit');
+	if (wp_count_terms('content_audit') == 0) {
+		wp_insert_term(__('Redundant','content-audit'), 'content_audit');
+		wp_insert_term(__('Outdated','content-audit'), 'content_audit');
+		wp_insert_term(__('Trivial','content-audit'), 'content_audit');
+		wp_insert_term(__('Review SEO','content-audit'), 'content_audit');
+		wp_insert_term(__('Review Style','content-audit'), 'content_audit');
+	}
 }
 
 add_action('admin_init', 'content_audit_taxonomies');
@@ -49,8 +47,8 @@ function content_audit_boxes() {
 	$options = get_option('content_audit');
 	foreach ($options['types'] as $content_type => $val) {
 		if ($val) {
-			add_meta_box( 'content_audit_meta', __('Content Audit Notes'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
-			add_meta_box( 'content_audit_owner', __('Content Owner'), 'content_audit_owner_meta_box', $content_type, 'side', 'low' );
+			add_meta_box( 'content_audit_meta', __('Content Audit Notes','content-audit'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
+			add_meta_box( 'content_audit_owner', __('Content Owner','content-audit'), 'content_audit_owner_meta_box', $content_type, 'side', 'low' );
 		}
 	}
 }
@@ -75,7 +73,7 @@ function content_audit_owner_meta_box() {
 	wp_dropdown_users( array(
 		'selected' => $owner, 
 		'name' => '_content_audit_owner', 
-		'show_option_none' => 'Select a user',
+		'show_option_none' => _e('Select a user','content-audit'),
 	)); ?>
 </div>
 <?php

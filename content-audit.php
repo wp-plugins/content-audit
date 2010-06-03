@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory. 
-Version: 0.9b
+Version: 1.0
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -27,8 +27,6 @@ Copyright 2010  Stephanie Leary  (email : steph@sillybean.net)
 /*
 TODO:
 * In quick edit, use JS to select current content owner (if any)
-
-FUTURE VERSION
 * Create Dashboard widget ("there are 3 content updates assigned to you...")
 * Notify owners when something is assigned?
 * Automatically mark content as outdated after a chosen amount of time?
@@ -116,7 +114,7 @@ function content_audit_css() {	?>
 if (!defined('WP_PLUGIN_DIR'))
 	define('WP_PLUGIN_DIR', dirname(dirname(__FILE__))); 
 $lang_dir = basename(dirname(__FILE__)). '/languages';
-load_plugin_textdomain( 'content_audit', 'WP_PLUGIN_DIR'.$lang_dir, $lang_dir );
+load_plugin_textdomain( 'content-audit', 'WP_PLUGIN_DIR'.$lang_dir, $lang_dir );
 
 // load stuff
 include_once(dirname (__FILE__)."/content-audit-fields.php");

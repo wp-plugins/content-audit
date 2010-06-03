@@ -10,7 +10,7 @@ function content_audit_options() { ?>
     
     <table class="form-table">
 	    <tr>
-	    <th scope="row"><?php _e("Audited content types"); ?></th>
+	    <th scope="row"><?php _e("Audited content types", 'content-audit'); ?></th>
 		    <td>
 			    <ul id="content_audit_types">
 			    <?php
@@ -31,42 +31,28 @@ function content_audit_options() { ?>
 	    </tr>
 
 	    <tr>
-	    <th scope="row"><?php _e("Users allowed to audit"); ?></th>
+	    <th scope="row"><?php _e("Users allowed to audit", 'content-audit'); ?></th>
 		    <td>
-				<select name="content_audit[roles]" id="content_audit[roles]">
-			    <?php
-/*			    $editable_roles = get_editable_roles();
-				foreach ( $editable_roles as $role => $details ) {
-					$name = translate_user_role($details['name'] );
-					?>
-						<li>
-			    		<label>
-			    		<input type="checkbox" name="content_audit[roles][<?php echo esc_attr($role); ?>]" value="1" <?php checked('1', $options['roles'][esc_attr($role)]); ?> />
-			    		<?php echo $name; ?></label>
-			    		</li>
-					<?php
-				}
-/**/		
-			?>
-			<option value="edit_dashboard" <?php selected('edit_dashboard', $options['roles']); ?>><?php _e('Administrators', 'dashboard-notepad'); ?></option>
-			<option value="edit_pages" <?php selected('edit_pages', $options['roles']); ?>><?php _e('Editors', 'dashboard-notepad'); ?></option>
-			<option value="publish_posts" <?php selected('publish_posts', $options['roles']); ?>><?php _e('Authors', 'dashboard-notepad'); ?></option>
-			<option value="edit_posts" <?php selected('edit_posts', $options['roles']); ?>><?php _e('Contributors', 'dashboard-notepad'); ?></option>
-			<option value="read" <?php selected('read', $options['roles']); ?>><?php _e('Subscribers', 'dashboard-notepad'); ?></option>
+			<select name="content_audit[roles]" id="content_audit[roles]">
+				<option value="edit_dashboard" <?php selected('edit_dashboard', $options['roles']); ?>><?php _e('Administrators', 'content-audit'); ?></option>
+				<option value="edit_pages" <?php selected('edit_pages', $options['roles']); ?>><?php _e('Editors', 'content-audit'); ?></option>
+				<option value="publish_posts" <?php selected('publish_posts', $options['roles']); ?>><?php _e('Authors', 'content-audit'); ?></option>
+				<option value="edit_posts" <?php selected('edit_posts', $options['roles']); ?>><?php _e('Contributors', 'content-audit'); ?></option>
+				<option value="read" <?php selected('read', $options['roles']); ?>><?php _e('Subscribers', 'content-audit'); ?></option>
 			</select>
 		    </td>
 	    </tr>
 
 <!--		  	
 		<tr>
-	    <th scope="row"><?php _e("Outdated content"); ?></th>
+	    <th scope="row"><?php _e("Outdated content", 'content-audit'); ?></th>
 		    <td>
-			    <label><?php _e("Automatically mark content as outdated if the last revision is older than:"); ?></label>
+			    <label><?php _e("Automatically mark content as outdated if the last revision is older than:", 'content-audit'); ?></label>
 			    <select name="content_audit[outdate]">
-			    	<option value="3" <?php selected(3, $options['outdate']); ?>><?php _e("3 months"); ?></option>
-			    	<option value="6" <?php selected(6, $options['outdate']); ?>><?php _e("6 months"); ?></option>
-			    	<option value="9" <?php selected(9, $options['outdate']); ?>><?php _e("9 months"); ?></option>
-			    	<option value="12" <?php selected(12, $options['outdate']); ?>><?php _e("1 year"); ?></option>
+			    	<option value="3" <?php selected(3, $options['outdate']); ?>><?php _e("3 months", 'content-audit'); ?></option>
+			    	<option value="6" <?php selected(6, $options['outdate']); ?>><?php _e("6 months", 'content-audit'); ?></option>
+			    	<option value="9" <?php selected(9, $options['outdate']); ?>><?php _e("9 months", 'content-audit'); ?></option>
+			    	<option value="12" <?php selected(12, $options['outdate']); ?>><?php _e("1 year", 'content-audit'); ?></option>
 			    </select>
 		    </td>
 	    </tr>
@@ -74,7 +60,7 @@ function content_audit_options() { ?>
 		<tr>
 	    <th scope="row"><?php _e("Front end display"); ?></th>
 		    <td>
-			    <?php _e("Display content status, notes, and owner to logged-in auditors "); ?>
+			    <?php _e('Display content status, notes, and owner to logged-in auditors ', 'content-audit'); ?>
 				<select name="content_audit[display]">
 					<option value="0" <?php selected(0, $options['display']); ?>><?php _e("nowhere"); ?></option>
 					<option value="above" <?php selected('above', $options['display']); ?>><?php _e("above content"); ?></option>
@@ -84,7 +70,7 @@ function content_audit_options() { ?>
 		    </td>
 	    </tr>
 		<tr>
-			<th scope="row"><?php _e("CSS for front end display"); ?></th>
+			<th scope="row"><?php _e("CSS for front end display", 'content-audit'); ?></th>
 		    <td>
 				<textarea name="content_audit[css]"><?php echo $options['css']; ?></textarea>
 		    </td>
@@ -92,9 +78,9 @@ function content_audit_options() { ?>
 
 	
 		<tr>
-	    <th scope="row"><?php _e("Content status labels"); ?></th>
+	    <th scope="row"><?php _e('Content status labels', 'content-audit'); ?></th>
 		    <td>
-			    <a href="edit-tags.php?taxonomy=content_audit"><?php _e("Edit content audit status labels"); ?></a>
+			    <a href="edit-tags.php?taxonomy=content_audit"><?php _e('Edit content audit status labels', 'content-audit'); ?></a>
 		    </td>
 	    </tr>
     </table>

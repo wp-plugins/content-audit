@@ -27,6 +27,9 @@ If you want to see sparklines from Google Analytics, also install the <a href="h
 
 == Changelog ==
 
+= 1.1 =
+* Allows you to audit media files.
+
 = 1.01 = 
 * Fixed a typo that prevented you from leaving the content owner field blank when editing something
 * Moved the Google Analytics Dashboard plugin's sparklines column to the last row of the Edit screen tables, if that plugin is installed

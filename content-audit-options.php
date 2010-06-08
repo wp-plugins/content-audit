@@ -15,7 +15,7 @@ function content_audit_options() { ?>
 			    <ul id="content_audit_types">
 			    <?php
 			    $content_types = get_post_types('', 'objects');
-			    $ignored = array('attachment', 'revision', 'nav_menu_item');
+			    $ignored = array('revision', 'nav_menu_item');
 			    foreach ($content_types as $content_type) {
 			    	if (!in_array($content_type->name, $ignored)) { ?>
 			    		<li>

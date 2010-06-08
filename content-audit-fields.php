@@ -44,6 +44,8 @@ function content_audit_taxonomies() {
 
 add_action('admin_init', 'content_audit_boxes');
 add_action('save_post', 'save_content_audit_meta_data');
+//add_filter('attachment_fields_to_save', 'save_content_audit_meta_data');
+add_filter('attachment_fields_to_edit', 'content_audit_media_fields');
 
 function content_audit_boxes() {
 	$options = get_option('content_audit');
@@ -115,6 +117,34 @@ function save_content_audit_meta_data( $post_id ) {
 	}
 	else 
 		update_post_meta($post_id, '_content_audit_notes', $_POST['_content_audit_notes']);
+	
+}
+
+function content_audit_media_fields($form_fields, $post) {
+	
+	$notes = wp_specialchars(stripslashes(get_post_meta($post->ID, '_content_audit_notes', true));
+	
+	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
+	if (empty($owner)) $owner = -1;
+	$owner_dropdown = wp_dropdown_users( array(
+		'selected' => $owner, 
+		'name' => 'attachments['.$post->ID.'][_content_audit_owner]', 
+		'show_option_none' => __('Select a user','content-audit'),
+		'echo' => 0,
+	));
+	
+	$form_fields['_content_audit_notes']  = array(
+			'label'      => __('Content Audit Notes'),
+			'input'      => 'text',
+			'html' => "<input type='text' name='attachments[$post->ID][_content_audit_notes]' value='$notes' />"
+		);
+	$form_fields['_content_audit_owner']  = array(
+			'label'      => __('Content Audit Notes'),
+			'input'      => 'text',
+			'html' => $owner_dropdown,
+		);
+
+		return $form_fields;
 	
 }
 ?>

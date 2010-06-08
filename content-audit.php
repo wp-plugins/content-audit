@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory. 
-Version: 1.01
+Version: 1.1
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 

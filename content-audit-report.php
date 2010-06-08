@@ -6,20 +6,22 @@ function content_audit_column_setup() {
 	$options = get_option('content_audit');
 	if ( current_user_can($options['roles']) ) {
 		foreach ($options['types'] as $type => $val) {
-		 	if	(($type == 'post') && (!empty($val))) {
-				add_filter('manage_posts_columns', 'content_audit_columns');
-			}
-			elseif (($type == 'page') && (!empty($val))) {
-				add_filter('manage_pages_columns', 'content_audit_columns');
-			}
-			else {
-				add_filter('manage_'.$type.'_posts_columns', 'content_audit_columns');
+			
+			switch ($type) {
+				case 'post': if (!empty($val)) add_filter('manage_posts_columns', 'content_audit_columns');
+					break;
+				case 'page': if (!empty($val)) add_filter('manage_posts_columns', 'content_audit_columns');
+					break;
+				case 'attachment': if (!empty($val)) add_filter('manage_media_columns', 'content_audit_columns');
+					break;
+				default: add_filter('manage_'.$type.'_posts_columns', 'content_audit_columns');
 			}
 		
 			// fill in the columns
-			// (these two will cover all content types)
+			// (these three will cover all content types)
 			add_action('manage_posts_custom_column', 'content_audit_custom_column', 10, 2);
 			add_action('manage_pages_custom_column', 'content_audit_custom_column', 10, 2);
+			add_action('manage_media_custom_column', 'content_audit_custom_column', 10, 2);
 		
 			// add filter dropdowns
 			add_action('restrict_manage_posts', 'content_audit_restrict_content_authors');

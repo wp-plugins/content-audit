@@ -15,9 +15,10 @@ function create_content_audit_tax() {
 		'content_audit',
 		'page',
 		array(
-			'label' => __('Content Audit', 'content-audit'),
+			'label' => __('Content Audit Attributes', 'content-audit'),
 			'hierarchical' => true,
 			'show_tagcloud' => false,
+			'helps' => 'Enter content attributes separated by commas.',
 		)
 	);
 }
@@ -44,8 +45,8 @@ function content_audit_taxonomies() {
 
 add_action('admin_init', 'content_audit_boxes');
 add_action('save_post', 'save_content_audit_meta_data');
-//add_filter('attachment_fields_to_save', 'save_content_audit_meta_data');
-add_filter('attachment_fields_to_edit', 'content_audit_media_fields');
+add_filter('attachment_fields_to_save', 'save_content_audit_media_meta', 10, 2);
+add_filter('attachment_fields_to_edit', 'content_audit_media_fields', 10, 2);
 
 function content_audit_boxes() {
 	$options = get_option('content_audit');
@@ -120,31 +121,46 @@ function save_content_audit_meta_data( $post_id ) {
 	
 }
 
+function save_content_audit_media_meta( $post, $attachment ) {
+	// in this filter, $post is an array of things being saved, not the usual $post object
+		
+	if (!empty($attachment['_content_audit_owner'])) 
+		update_post_meta($post['ID'], '_content_audit_owner', $attachment['_content_audit_owner']);
+	
+	if (!empty($attachment['audit_notes'])) 
+		update_post_meta($post['ID'], '_content_audit_notes', $attachment['audit_notes']);
+		
+	return $attachment;
+}
+
 function content_audit_media_fields($form_fields, $post) {
 	
-	$notes = wp_specialchars(stripslashes(get_post_meta($post->ID, '_content_audit_notes', true));
+	$notes = wp_specialchars(stripslashes(get_post_meta($post->ID, '_content_audit_notes', true)));
 	
 	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
 	if (empty($owner)) $owner = -1;
+	
 	$owner_dropdown = wp_dropdown_users( array(
 		'selected' => $owner, 
-		'name' => 'attachments['.$post->ID.'][_content_audit_owner]', 
+		'name' => "attachments[$post->ID][_content_audit_owner]", 
 		'show_option_none' => __('Select a user','content-audit'),
 		'echo' => 0,
 	));
 	
-	$form_fields['_content_audit_notes']  = array(
-			'label'      => __('Content Audit Notes'),
-			'input'      => 'text',
-			'html' => "<input type='text' name='attachments[$post->ID][_content_audit_notes]' value='$notes' />"
+	$form_fields['audit_owner'] = array(
+			'label' => __('Content Audit Owner'),
+			'input' => 'select',
+			'select' => $owner_dropdown,
 		);
-	$form_fields['_content_audit_owner']  = array(
-			'label'      => __('Content Audit Notes'),
-			'input'      => 'text',
-			'html' => $owner_dropdown,
+		
+	$form_fields['audit_notes'] = array(
+			'label' => __('Content Audit Notes'),
+			'input' => 'textarea',
+			'html' => "<textarea name='attachments[$post->ID][audit_notes]' />$notes</textarea>",
+			'value' => $notes,
 		);
-
-		return $form_fields;
+		
+	return $form_fields;
 	
 }
 ?>

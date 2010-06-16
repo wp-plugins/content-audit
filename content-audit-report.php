@@ -10,7 +10,7 @@ function content_audit_column_setup() {
 			switch ($type) {
 				case 'post': if (!empty($val)) add_filter('manage_posts_columns', 'content_audit_columns');
 					break;
-				case 'page': if (!empty($val)) add_filter('manage_posts_columns', 'content_audit_columns');
+				case 'page': if (!empty($val)) add_filter('manage_pages_columns', 'content_audit_columns');
 					break;
 				case 'attachment': if (!empty($val)) add_filter('manage_media_columns', 'content_audit_columns');
 					break;

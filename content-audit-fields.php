@@ -6,7 +6,6 @@ register_activation_hook( __FILE__, 'activate_content_audit_tax' );
 
 function activate_content_audit_tax() {
 	create_content_audit_tax();
-	activate_content_audit_terms();
 	$GLOBALS['wp_rewrite']->flush_rules();
 }
 
@@ -21,6 +20,8 @@ function create_content_audit_tax() {
 			'helps' => 'Enter content attributes separated by commas.',
 		)
 	);
+	
+	activate_content_audit_terms();
 }
 
 function activate_content_audit_terms() {

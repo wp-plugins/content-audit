@@ -2,8 +2,8 @@
 /*
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
-Description: Lets you create a content inventory. 
-Version: 1.1.2
+Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
+Version: 1.2b6
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -27,22 +27,7 @@ Copyright 2010  Stephanie Leary  (email : steph@sillybean.net)
 /*
 TODO:
 * In quick edit, use JS to select current content owner (if any)
-* Create Dashboard widget ("there are 3 content updates assigned to you...")
-* Notify owners when something is assigned?
-* Automatically mark content as outdated after a chosen amount of time?
-
 */
-
-/**************************/
-// THIS DOESN'T WORK YET
-
-// Add the jQuery script needed to work around the lack of global $post in quick edit
-//wp_enqueue_script('content-audit-select', WP_PLUGIN_URL.'/content-audit/select.js', array('jquery'), '1.0');
-
-// Handle jQuery request
-//if (isset($_GET['post']) && isset($_GET['select'])) echo get_post_meta($_GET['post'], "_content_audit_owner", true);
-
-/**************************/
 
 // when activated, add option
 register_activation_hook(__FILE__, 'content_audit_activation');
@@ -55,10 +40,16 @@ function content_audit_activation() {
 	$options = array();	
 	$options['types'] = array('page' => 1);
 	$options['roles'] = 'edit_pages';
-	$options['display'] = 'nowhere';
+	$options['display_switch'] = '0';
+	$options['display'] = '0';
 	$options['css'] = 'div.content-audit { background: #ffc; }
 p.content-notes { font-style: italic; }';
-//	$options['outdate'] = 12;	
+	$options['mark_outdated'] = 0;
+	$options['outdate'] = 1;
+	$options['outdate_unit'] = 'years';
+	$options['notify'] = 0;
+	$options['notify_authors'] = 0;	
+	$options['interval'] = 'monthly';	
 	// set the new option
 	add_option('content_audit', $options, '', 'yes');
 }
@@ -95,6 +86,7 @@ function content_audit_add_pages() {
 	add_action("admin_head-$css", 'content_audit_css');
 	add_action("admin_head-post.php", 'content_audit_css');
 	add_action("admin_head-edit.php", 'content_audit_css');
+	add_action("admin_head-index.php", 'content_audit_css');
 }
 
 function content_audit_css() {	?>
@@ -105,7 +97,11 @@ function content_audit_css() {	?>
 	#audit-notes { width: 100%; }
 	#audit-notes textarea { width: 95%; margin: 0 1em 1em 0; }
 	#content_audit_form textarea { display: block; width: 30em; height: 10em; }
-	#posts-filter th#ID { width: 3em; }
+	#posts-filter th#ID { width: 4em; }
+	table#content-audit-outdated { border: 0; }
+	table#content-audit-outdated td.column-title { padding: 8px .5em; }
+	table#content-audit-outdated td.column-date { padding: 8px .5em 8px 0; width: 30%; }
+	table#content-audit-outdated th.column-date { text-align: left; width: 30%; padding: 0; }
 	</style>
 <?php 
 }
@@ -120,4 +116,5 @@ load_plugin_textdomain( 'content-audit', 'WP_PLUGIN_DIR'.$lang_dir, $lang_dir );
 include_once(dirname (__FILE__)."/content-audit-fields.php");
 include_once(dirname (__FILE__)."/content-audit-options.php");
 include_once(dirname (__FILE__)."/content-audit-report.php");
+include_once(dirname (__FILE__)."/content-audit-schedule.php");
 ?>

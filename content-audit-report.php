@@ -39,29 +39,34 @@ function content_audit_column_setup() {
 
 // rearrange the columns on the Edit screens
 function content_audit_columns($defaults) {
-	// preserve the original column headings
+	// preserve the original column headings and remove (unset) default columns
 	$original['comments'] = $defaults['comments'];
-	$original['date'] = $defaults['date'];
-	$original['cb'] = $defaults['cb'];
-	$original['cats'] = $defaults['categories'];
-	$original['tags'] = $defaults['tags'];
-	$original['analytics'] = $defaults['analytics'];
-	// remove default columns
 	unset($defaults['comments']);
+	$original['date'] = $defaults['date'];
 	unset($defaults['date']);
+	$original['cb'] = $defaults['cb'];
 	unset($defaults['cb']);
-	unset($defaults['categories']);
-	unset($defaults['tags']);
-	unset($defaults['analytics']);
+	if (isset($defaults['categories'])) {
+		$original['categories'] = $defaults['categories'];
+		unset($defaults['categories']);
+	}
+	if (isset($defaults['tags'])) {
+		$original['tags'] = $defaults['tags'];
+		unset($defaults['tags']);
+	}
+	if (isset($defaults['analytics'])) {
+		$original['analytics'] = $defaults['analytics'];
+		unset($defaults['analytics']);
+	}
 	// insert content owner and status taxonomy columns
 	$defaults['content_owner'] = __('Content Owner', 'content-audit');
     $defaults['content_status'] = __('Content Status', 'content-audit');
 	// restore default columns
-	if (!empty($original['cats'])) $defaults['categories'] = $original['cats'];
-	if (!empty($original['tags'])) $defaults['tags'] = $original['tags'];
+	if (isset($original['categories'])) $defaults['categories'] = $original['categories'];
+	if (isset($original['tags'])) $defaults['tags'] = $original['tags'];
 	$defaults['comments'] = $original['comments'];
 	$defaults['date'] = $original['date'];
-	if (!empty($original['analytics'])) $defaults['analytics'] = $original['analytics'];
+	if (isset($original['analytics'])) $defaults['analytics'] = $original['analytics'];
 	// restore checkbox, add ID as the second column, then add the rest
     return array('cb' => $original['cb'], 'ID' => __('ID')) + $defaults;
 }
@@ -74,11 +79,11 @@ function content_audit_custom_column($column_name, $id) {
 		foreach ($terms as $term) {
 			if (!empty($_GET['post_type'])) $type = 'post_type='.$_GET['post_type'].'&';
 			else $type = '';
-			$termlist[] = '<a href="edit.php?'.$type.'content_audit='.$term->slug.'">'.$term->name.'</a>';
+			$termlist[] .= '<a href="edit.php?'.$type.'content_audit='.$term->slug.'">'.$term->name.'</a>';
 		}
-		echo implode(', ', $termlist);
+		if (!empty($termlist)) echo implode(', ', $termlist);
 
-		if ($_GET['mode'] == 'excerpt')
+		if (isset($_GET['mode']) && ($_GET['mode'] == 'excerpt'))
 			echo '<p>'.get_post_meta($post->ID, "_content_audit_notes", true).'</p>';
 	}
 	elseif ($column_name == 'ID') {
@@ -128,10 +133,8 @@ function content_audit_restrict_content_owners() {
 	else $type = 'post';
 	
 	if ($options['types'][$type] == '1') {
-		$editable_ids = get_editable_user_ids( $user_ID );
 		wp_dropdown_users(
 			array(
-				'include' => $editable_ids,
 				'show_option_all' => __('Show all owners', 'content-audit'),
 				'name' => 'content_owner',
 				'selected' => isset($_GET['content_owner']) ? $_GET['content_owner'] : 0
@@ -223,5 +226,28 @@ function content_audit_front_end_css() {
 	}
 }
 add_action('wp_head', 'content_audit_front_end_css');
+
+// Dashboard Widget
+function content_audit_dashboard_widget() {
+	$options = get_option('content_audit');
+	foreach ($options['types'] as $type => $val) {
+		if ($val == '1') {
+			$oldposts = get_posts('numberposts=5&post_type='.$type.'&content_audit=outdated&order=ASC&orderby=modified');
+			$obj = get_post_type_object( $type );
+			echo '<table class="widefat fixed" id="content-audit-outdated"><thead><tr><th>'.$obj->label.'</th><th  class="column-date">'.__('Last Modified', 'content-audit').'</th></tr></thead><tbody>';
+			foreach ($oldposts as $apost) {
+				echo '<tr class="author-self"><td class="column-title"><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></td>';
+				echo '<td class="column-date">'. mysql2date(get_option('date_format'), $apost->post_modified).'</td></tr>';
+			}
+			echo '<tr><td class="column-title" colspan="2"><a href="edit.php?post_type='.$type.'&content_audit=outdated">'.__('See all...', 'content-audit').'</a></td></tr></tbody></table>';
+		}
+	}
+}
+
+function content_audit_dashboard_widget_setup() {
+    wp_add_dashboard_widget( 'dashboard_audit_widget_id', __('Outdated Content', 'content-audit'), 'content_audit_dashboard_widget');
+}
+
+add_action('wp_dashboard_setup', 'content_audit_dashboard_widget_setup');
 
 ?>

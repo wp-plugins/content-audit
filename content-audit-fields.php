@@ -21,12 +21,12 @@ function create_content_audit_tax() {
 		)
 	);
 	
+	wp_insert_term(__('Outdated','content-audit'), 'content_audit'); // this one stays; the others can be edited
 	activate_content_audit_terms();
 }
 
 function activate_content_audit_terms() {
 	wp_insert_term(__('Redundant','content-audit'), 'content_audit');
-	wp_insert_term(__('Outdated','content-audit'), 'content_audit');
 	wp_insert_term(__('Trivial','content-audit'), 'content_audit');
 	wp_insert_term(__('Review SEO','content-audit'), 'content_audit');
 	wp_insert_term(__('Review Style','content-audit'), 'content_audit');
@@ -64,7 +64,7 @@ function content_audit_notes_meta_box() {
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_notes_nonce', '_content_audit_notes_nonce'); 
 ?>
 <div id="audit-notes">
-	<textarea name="_content_audit_notes"><?php echo wp_specialchars(stripslashes(get_post_meta($post->ID, '_content_audit_notes', true)), 1); ?></textarea>
+	<textarea name="_content_audit_notes"><?php echo esc_html(get_post_meta($post->ID, '_content_audit_notes', true)); ?></textarea>
 </div>
 <?php
 }
@@ -87,7 +87,7 @@ function content_audit_owner_meta_box() {
 }
 
 function save_content_audit_meta_data( $post_id ) {
-	
+
 	if (defined('DOING_AJAX') && !DOING_AJAX) {
 		// check nonces
 		check_admin_referer('content_audit_notes_nonce', '_content_audit_notes_nonce');

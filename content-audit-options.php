@@ -1,9 +1,13 @@
 <?php
 // displays the options page content
-function content_audit_options() { ?>	
+function content_audit_options() {
+	// clear and redo the schedules now in case they changed
+	content_audit_cron_deactivate();
+	content_audit_cron_activate();
+	?>	
     <div class="wrap">
 	<form method="post" id="content_audit_form" action="options.php">
-		<?php settings_fields('content_audit');
+		<?php settings_fields('content_audit'); 
 		$options = get_option('content_audit'); ?>
 
     <h2><?php _e( 'Content Audit Options', 'content-audit'); ?></h2>
@@ -43,26 +47,57 @@ function content_audit_options() { ?>
 		    </td>
 	    </tr>
 
-<!--		  	
+		  	
 		<tr>
 	    <th scope="row"><?php _e("Outdated content", 'content-audit'); ?></th>
 		    <td>
-			    <label><?php _e("Automatically mark content as outdated if the last revision is older than:", 'content-audit'); ?></label>
-			    <select name="content_audit[outdate]">
-			    	<option value="3" <?php selected(3, $options['outdate']); ?>><?php _e("3 months", 'content-audit'); ?></option>
-			    	<option value="6" <?php selected(6, $options['outdate']); ?>><?php _e("6 months", 'content-audit'); ?></option>
-			    	<option value="9" <?php selected(9, $options['outdate']); ?>><?php _e("9 months", 'content-audit'); ?></option>
-			    	<option value="12" <?php selected(12, $options['outdate']); ?>><?php _e("1 year", 'content-audit'); ?></option>
+			   
+				<input type="checkbox" name="content_audit[mark_outdated]" value="1" <?php checked('1', $options['mark_outdated']); ?> />
+				<label><?php _e("Automatically mark content as outdated if it has not been modified in", 'content-audit'); ?></label> 
+				<input type="text" name="content_audit[outdate]" size="3" value="<?php echo esc_attr($options['outdate']); ?>" />
+			    <select name="content_audit[outdate_unit]">
+			    	<option value="days" <?php selected('days', $options['outdate_unit']); ?>><?php _e("days", 'content-audit'); ?></option>
+			    	<option value="weeks" <?php selected('weeks', $options['outdate_unit']); ?>><?php _e("weeks", 'content-audit'); ?></option>
+			    	<option value="months" <?php selected('months', $options['outdate_unit']); ?>><?php _e("months", 'content-audit'); ?></option>
+			    	<option value="years" <?php selected('years', $options['outdate_unit']); ?>><?php _e("years", 'content-audit'); ?></option>
 			    </select>
+		
+			    </td>
+		    </tr>
+
+
+			<tr>
+		    <th scope="row"><?php _e("Email notifications", 'content-audit'); ?></th>
+			    <td>
+					
+				<label>
+	    		<input type="checkbox" name="content_audit[notify]" value="1" <?php checked('1', $options['notify']); ?> />
+	    		<?php _e("Notify content owners of outdated content", 'content-audit'); ?> </label>
+				<label class="hidden"><?php _e("How often?", 'content-audit'); ?> </label>
+			    <select name="content_audit[interval]">
+			    	<option value="daily" <?php selected('daily', $options['interval']); ?>><?php _e("once a day", 'content-audit'); ?></option>
+			    	<option value="weekly" <?php selected('weekly', $options['interval']); ?>><?php _e("once a week", 'content-audit'); ?></option>
+			    	<option value="monthly" <?php selected('monthly', $options['interval']); ?>><?php _e("once a month", 'content-audit'); ?></option>
+			    </select>
+				<br />
+				<label>
+	    		<input type="checkbox" name="content_audit[notify_authors]" value="1" <?php checked('1', $options['notify_authors']); ?> />
+	    		<?php _e("Notify original author if no owner is selected", 'content-audit'); ?></label>
+			
+			<p class="description"><?php _e("Note: Email notifications will be sent as soon as you update these options, and will then be scheduled to repeat using the interval you have selected.", 'content-audit'); ?></p>
 		    </td>
 	    </tr>
--->	
+	
 		<tr>
 	    <th scope="row"><?php _e("Front end display"); ?></th>
 		    <td>
-			    <?php _e('Display content status, notes, and owner to logged-in auditors ', 'content-audit'); ?>
+				<?php if ($options['display'] == '0') $options['display_switch'] = '0'; // handling option from previous version ?>
+				<label>
+	    		<input type="checkbox" name="content_audit[display_switch]" value="1" <?php checked('1', $options['display_switch']); ?> />
+	    		<?php _e('Display content status, notes, and owner to logged-in auditors ', 'content-audit'); ?></label> 
+				
+				<label class="hidden"><?php _e("Where?", 'content-audit'); ?> </label>
 				<select name="content_audit[display]">
-					<option value="0" <?php selected(0, $options['display']); ?>><?php _e("nowhere"); ?></option>
 					<option value="above" <?php selected('above', $options['display']); ?>><?php _e("above content"); ?></option>
 					<option value="below" <?php selected('below', $options['display']); ?>><?php _e("below content"); ?></option>
 				</select>

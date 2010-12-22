@@ -1,0 +1,60 @@
+<?php
+// displays the options page content
+function content_audit_options() { ?>	
+    <div class="wrap">
+	<form method="post" id="content_audit_form" action="options.php">
+		<?php settings_fields('content_audit');
+		$options = get_option('content_audit'); ?>
+
+    <h2><?php _e( 'Content Audit Options', 'content-audit'); ?></h2>
+    
+    <table class="form-table">
+	    <tr>
+	    <th scope="row">Content Types to Audit</th>
+		    <td>
+			    <ul id="content_audit_types">
+			    <?php
+			    $content_types = get_post_types('', 'objects');
+			    $ignored = array('attachment', 'revision', 'nav_menu_item');
+			    foreach ($content_types as $content_type) {
+			    	if (!in_array($content_type->name, $ignored)) { ?>
+			    		<li>
+			    		<label>
+			    		<input type="checkbox" name="content_audit[types][<?php echo $content_type->name; ?>]" value="1" <?php checked('1', $options['types'][$content_type->name]); ?> />
+			    		<?php echo $content_type->label; ?></label>
+			    		</li>
+			    	<?php }
+			    }
+			    ?>
+			    </ul>
+		    </td>
+	    </tr>
+		<tr>
+	    <th scope="row">Content Attributes</th>
+		    <td>
+			    <label>List the content attributes you wish to audit, one per line. (E.g. Redundant, Outdated, Trivial, SEO, Style)</label>
+			    <textarea name="content_audit[atts]"><?php echo $options['atts']; ?></textarea>
+		    </td>
+	    </tr>   	
+		<tr>
+	    <th scope="row">Outdated content</th>
+		    <td>
+			    <label>Automatically mark content as outdated if the last revision is older than:</label>
+			    <select name="content_audit[outdate]">
+			    	<option value="3" <?php selected(3, $options['outdate']); ?>>3 months</option>
+			    	<option value="6" <?php selected(6, $options['outdate']); ?>>6 months</option>
+			    	<option value="9" <?php selected(9, $options['outdate']); ?>>9 months</option>
+			    	<option value="12" <?php selected(12, $options['outdate']); ?>>1 year</option>
+			    </select>
+		    </td>
+	    </tr>
+    </table>
+    
+	<p class="submit">
+	<input type="submit" name="submit" class="button-primary" value="<?php _e('Update Options', 'content-audit'); ?>" />
+	</p>
+	</form>
+	</div>
+<?php 
+} // end function content_audit_options() 
+?>

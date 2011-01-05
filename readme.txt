@@ -19,6 +19,10 @@ If you want to see sparklines from Google Analytics, also install the <a href="h
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Visit the Settings screen to set your status labels (redundant, outdated, trivial) and choose which content types (posts, pages, and/or custom) should be audited.
 
+== Translations ==
+
+If you would like to send me a translation, please write to me through <a href="http://sillybean.net/about/contact/">my contact page</a>. Let me know which plugin you've translated and how you would like to be credited. I will write you back so you can attach the files in your reply.
+
 == Screenshots ==
 
 1. The options screen
@@ -31,25 +35,18 @@ If you want to see sparklines from Google Analytics, also install the <a href="h
 * New feature: Automatically mark content as outdated after a certain period of time
 * New feature: Email content owners (or original authors) a summary of outdated content
 * Bugfix: You should no longer see notices for pages that do not have a content status (or anywhere else, for that matter).
-
 = 1.1.2 =
 * Bugfix: the default attributes (redundant, outdated, etc.) were not created properly when the plugin was installed.
-
 = 1.1.1 =
 * Fixed a bug that prevented the audit columns from appearing on the Edit Pages screens
-
 = 1.1 =
 * Allows you to audit media files.
-
 = 1.01 = 
 * Fixed a typo that prevented you from leaving the content owner field blank when editing something
 * Moved the Google Analytics Dashboard plugin's sparklines column to the last row of the Edit screen tables, if that plugin is installed
-
 = 1.0 =
 * Out of beta!
-
 = 0.9b =
 * Changed the way the content status taxonomy is created so that you can actually edit and delete the built-in categories.
-
 = 0.8b =
 * First beta.

@@ -6,6 +6,7 @@ register_activation_hook( __FILE__, 'activate_content_audit_tax' );
 
 function activate_content_audit_tax() {
 	create_content_audit_tax();
+	activate_content_audit_terms();
 	$GLOBALS['wp_rewrite']->flush_rules();
 }
 
@@ -22,7 +23,6 @@ function create_content_audit_tax() {
 	);
 	
 	wp_insert_term(__('Outdated','content-audit'), 'content_audit'); // this one stays; the others can be edited
-	activate_content_audit_terms();
 }
 
 function activate_content_audit_terms() {

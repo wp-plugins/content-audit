@@ -198,7 +198,7 @@ function add_quickedit_content_owner($column_name, $type) {
 // Prints the content status, notes, and owner on the front end
 function content_audit_front_end_display($content) {
 	$options = get_option('content_audit');
-	if (!empty($options['display']) && (current_user_can($options['roles']))) {
+	if (!empty($options['display_switch']) && (current_user_can($options['roles']))) {
 		global $post;
 		$out = '<p class="content-status">'.get_the_term_list($post->ID, 'content_audit', __('Content status: ', 'content-audit'), ', ','').'</p>';
 		$ownerID = get_post_meta($post->ID, "_content_audit_owner", true);
@@ -211,7 +211,8 @@ function content_audit_front_end_display($content) {
 		$css = '<style type="text/css">'.$options['css'].'</style>';
 		
 		if ($options['display'] == 'above') return $out.$content;
-		else return $content.$out;
+		elseif ($options['display'] == 'below') return $content.$out;
+		else return $content;
 	}
 	else return $content;
 }

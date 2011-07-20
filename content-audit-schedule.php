@@ -26,8 +26,18 @@ function content_audit_cron_activate() {
 	if (!wp_next_scheduled('content_audit_outdated_report')) {
 		wp_schedule_event(time(), 'daily', 'content_audit_outdated_report');
 	}
+	
+	// prevent this from happening immediately
+	switch ($options['interval']) {
+		case 'daily': $start = strtotime('+1 day'); break;
+		case 'weekly': $start = strtotime('+1 week'); break;
+		default: $start = strtotime('+1 month');
+	}
+	
 	if (!wp_next_scheduled('content_audit_outdated_email')) {
-		wp_schedule_event(time(), $options['interval'], 'content_audit_outdated_email');
+		wp_schedule_event($start, $options['interval'], 'content_audit_outdated_email');
+		if ($options['notify_now'])
+			wp_schedule_event(time(), $options['interval'], 'content_audit_outdated_email');
 	}
 }
 
@@ -57,7 +67,7 @@ function content_audit_notify_owners() {
 		// get all types we're auditing
 		foreach ($options['types'] as $type => $val) {
 			if ($val == '1') {
-				// get all outdated posts of this type
+				// get all outdated posts of this type (published status only)
 				$oldposts = get_posts('numberposts=-1&post_type='.$type.'&content_audit=outdated&order=ASC&orderby=modified');
 				foreach ($oldposts as $apost) {
 					// 	if it has a content owner, assign to owner's ID

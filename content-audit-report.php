@@ -40,8 +40,10 @@ function content_audit_column_setup() {
 // rearrange the columns on the Edit screens
 function content_audit_columns($defaults) {
 	// preserve the original column headings and remove (unset) default columns
-	$original['comments'] = $defaults['comments'];
-	unset($defaults['comments']);
+	if (isset($defaults['comments'])) {
+		$original['comments'] = $defaults['comments'];
+		unset($defaults['comments']);
+	}
 	$original['date'] = $defaults['date'];
 	unset($defaults['date']);
 	$original['cb'] = $defaults['cb'];
@@ -64,7 +66,7 @@ function content_audit_columns($defaults) {
 	// restore default columns
 	if (isset($original['categories'])) $defaults['categories'] = $original['categories'];
 	if (isset($original['tags'])) $defaults['tags'] = $original['tags'];
-	$defaults['comments'] = $original['comments'];
+	if (isset($original['comments'])) $defaults['comments'] = $original['comments'];
 	$defaults['date'] = $original['date'];
 	if (isset($original['analytics'])) $defaults['analytics'] = $original['analytics'];
 	// restore checkbox, add ID as the second column, then add the rest
@@ -107,7 +109,7 @@ function content_audit_restrict_content_status() {
 	if (isset($_GET['post_type'])) $type = $_GET['post_type'];
 	else $type = 'post';
 	
-	if ($options['types'][$type] == '1') {
+	if (isset($options['types'][$type]) && $options['types'][$type] == '1') {
 		?>
 		<select name="content_audit" id="content_audit" class="postform">
 		<option value="0"><?php _e("Show all statuses", 'content-audit'); ?></option>
@@ -132,7 +134,7 @@ function content_audit_restrict_content_owners() {
 	if (isset($_GET['post_type'])) $type = $_GET['post_type'];
 	else $type = 'post';
 	
-	if ($options['types'][$type] == '1') {
+	if (isset($options['types'][$type]) && $options['types'][$type] == '1') {
 		wp_dropdown_users(
 			array(
 				'show_option_all' => __('Show all owners', 'content-audit'),
@@ -146,11 +148,9 @@ function content_audit_restrict_content_owners() {
 // print a dropdown to filter posts by author
 function content_audit_restrict_content_authors()
 {
-	global $user_ID; 
-	$editable_ids = get_editable_user_ids( $user_ID );
 	wp_dropdown_users(
 		array(
-			'include' => $editable_ids,
+			'who' => 'authors',
 			'show_option_all' => __('Show all authors', 'content-audit'),
 			'name' => 'author',
 			'selected' => isset($_GET['author']) ? $_GET['author'] : 0
@@ -171,7 +171,7 @@ function content_audit_posts_where($where)
 // Outputs the new custom Quick Edit field HTML
 function add_quickedit_content_owner($column_name, $type) { 
 	if ($column_name == 'content_owner') {
-		global $post, $user_ID;
+		global $post;
 		$owner = get_post_meta($post->ID, '_content_audit_owner', true);		
 		?>
 	<fieldset class="inline-edit-col-right">
@@ -179,10 +179,10 @@ function add_quickedit_content_owner($column_name, $type) {
 		<label class="inline-edit-status alignleft">
 			<span class="title"><?php _e("Content Owner", 'content-audit'); ?></span>
 			<?php
-			$editable_ids = get_editable_user_ids( $user_ID );
+			
 			wp_dropdown_users(
 				array(
-					'include' => $editable_ids,
+					'who' => 'authors',
 					'show_option_all' => __('None', 'content-audit'),
 					'name' => '_content_audit_owner',
 					'selected' => $owner
@@ -199,17 +199,7 @@ function add_quickedit_content_owner($column_name, $type) {
 function content_audit_front_end_display($content) {
 	$options = get_option('content_audit');
 	if (!empty($options['display_switch']) && (current_user_can($options['roles']))) {
-		global $post;
-		$out = '<p class="content-status">'.get_the_term_list($post->ID, 'content_audit', __('Content status: ', 'content-audit'), ', ','').'</p>';
-		$ownerID = get_post_meta($post->ID, "_content_audit_owner", true);
-		if (!empty($ownerID)) {
-			$out .= '<p class="content-owner">'.__("Assigned to: ", 'content-audit').get_the_author_meta('display_name', $ownerID).'</p>';
-		}
-		$out .= '<p class="content-notes">'.get_post_meta($post->ID, "_content_audit_notes", true).'</p>';
-		$out = '<div class="content-audit">'.$out.'</div>';
-		
-		$css = '<style type="text/css">'.$options['css'].'</style>';
-		
+		$out = content_audit_notes(false);		
 		if ($options['display'] == 'above') return $out.$content;
 		elseif ($options['display'] == 'below') return $content.$out;
 		else return $content;
@@ -218,6 +208,20 @@ function content_audit_front_end_display($content) {
 }
 
 add_filter('the_content', 'content_audit_front_end_display');
+
+// template tag: content_audit_notes($echo);
+function content_audit_notes($echo = true) {
+	global $post;
+	$out = '<p class="content-status">'.get_the_term_list($post->ID, 'content_audit', __('Content status: ', 'content-audit'), ', ','').'</p>';
+	$ownerID = get_post_meta($post->ID, "_content_audit_owner", true);
+	if (!empty($ownerID)) {
+		$out .= '<p class="content-owner">'.__("Assigned to: ", 'content-audit').get_the_author_meta('display_name', $ownerID).'</p>';
+	}
+	$out .= '<p class="content-notes">'.get_post_meta($post->ID, "_content_audit_notes", true).'</p>';
+	$out = '<div class="content-audit">'.$out.'</div>';
+	if ($echo) echo $out;
+	else return $out;	
+}
 
 // Prints the CSS for the front end
 function content_audit_front_end_css() {

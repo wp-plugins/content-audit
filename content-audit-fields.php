@@ -2,7 +2,6 @@
 /* Custom Taxonomy */
 
 add_action('init', 'create_content_audit_tax');
-register_activation_hook( __FILE__, 'activate_content_audit_tax' ); 
 
 function activate_content_audit_tax() {
 	create_content_audit_tax();
@@ -37,25 +36,42 @@ add_action('admin_init', 'content_audit_taxonomies');
 function content_audit_taxonomies() {
 	$options = get_option('content_audit');
 	foreach ($options['types'] as $content_type => $val) {
-		if ($val)
+		if ($val && current_user_can($options['roles']))
 			register_taxonomy_for_object_type('content_audit', $content_type);
 	}
 }
 
-/* Custom Fields */
 
 add_action('admin_init', 'content_audit_boxes');
-add_action('save_post', 'save_content_audit_meta_data');
-add_filter('attachment_fields_to_save', 'save_content_audit_media_meta', 10, 2);
-add_filter('attachment_fields_to_edit', 'content_audit_media_fields', 10, 2);
+
+/* Custom Fields */
 
 function content_audit_boxes() {
 	$options = get_option('content_audit');
-	foreach ($options['types'] as $content_type => $val) {
-		if ($val) {
-			add_meta_box( 'content_audit_meta', __('Content Audit Notes','content-audit'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
-			add_meta_box( 'content_audit_owner', __('Content Owner','content-audit'), 'content_audit_owner_meta_box', $content_type, 'side', 'low' );
+	if (current_user_can($options['roles'])) {
+		foreach ($options['types'] as $content_type => $val) {
+			if ($val) {
+				add_meta_box( 'content_audit_meta', __('Content Audit Notes','content-audit'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
+				add_meta_box( 'content_audit_owner', __('Content Owner','content-audit'), 'content_audit_owner_meta_box', $content_type, 'side', 'low' );
+				if ($content_type == 'attachment') {
+					add_filter('attachment_fields_to_edit', 'content_audit_media_fields', 10, 2);
+					add_filter('attachment_fields_to_save', 'save_content_audit_media_meta', 10, 2);
+				}
+			}
 		}
+		add_action('save_post', 'save_content_audit_meta_data');
+	}
+	else {
+		add_action( 'admin_menu', 'remove_audit_taxonomy_boxes' );
+	}
+}
+
+function remove_audit_taxonomy_boxes()
+{
+	$options = get_option('content_audit');
+	foreach ($options['types'] as $content_type => $val) {
+		if ($val)
+			remove_meta_box( 'content_auditdiv', $content_type, 'side' );
 	}
 }
 
@@ -64,7 +80,7 @@ function content_audit_notes_meta_box() {
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_notes_nonce', '_content_audit_notes_nonce'); 
 ?>
 <div id="audit-notes">
-	<textarea name="_content_audit_notes"><?php echo esc_html(get_post_meta($post->ID, '_content_audit_notes', true)); ?></textarea>
+	<textarea name="_content_audit_notes"><?php echo esc_textarea(get_post_meta($post->ID, '_content_audit_notes', true)); ?></textarea>
 </div>
 <?php
 }
@@ -125,18 +141,18 @@ function save_content_audit_meta_data( $post_id ) {
 function save_content_audit_media_meta( $post, $attachment ) {
 	// in this filter, $post is an array of things being saved, not the usual $post object
 		
-	if (!empty($attachment['_content_audit_owner'])) 
+	if (isset($attachment['_content_audit_owner'])) 
 		update_post_meta($post['ID'], '_content_audit_owner', $attachment['_content_audit_owner']);
 	
-	if (!empty($attachment['audit_notes'])) 
+	if (isset($attachment['audit_notes'])) 
 		update_post_meta($post['ID'], '_content_audit_notes', $attachment['audit_notes']);
 		
-	return $attachment;
+	return $post;
 }
 
 function content_audit_media_fields($form_fields, $post) {
 	
-	$notes = wp_specialchars(stripslashes(get_post_meta($post->ID, '_content_audit_notes', true)));
+	$notes = esc_textarea(get_post_meta($post->ID, '_content_audit_notes', true));
 	
 	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
 	if (empty($owner)) $owner = -1;
@@ -157,7 +173,7 @@ function content_audit_media_fields($form_fields, $post) {
 	$form_fields['audit_notes'] = array(
 			'label' => __('Content Audit Notes'),
 			'input' => 'textarea',
-			'html' => "<textarea name='attachments[$post->ID][audit_notes]' />$notes</textarea>",
+		/*	'html' => "<textarea name='attachments[$post->ID][audit_notes]' />$notes</textarea>", */
 			'value' => $notes,
 		);
 		

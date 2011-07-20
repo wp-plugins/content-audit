@@ -80,12 +80,14 @@ function content_audit_options() {
 			    	<option value="monthly" <?php selected('monthly', $options['interval']); ?>><?php _e("once a month", 'content-audit'); ?></option>
 			    </select>
 				<br />
-				<label>
+				<label class="indent">
+	    		<input type="checkbox" name="content_audit[notify_now]" value="1" <?php checked('1', $options['notify_now']); ?> />
+	    		<?php _e("Send notifications now", 'content-audit'); ?></label>
+				<br />
+				<label class="indent">
 	    		<input type="checkbox" name="content_audit[notify_authors]" value="1" <?php checked('1', $options['notify_authors']); ?> />
 	    		<?php _e("Notify original author if no owner is selected", 'content-audit'); ?></label>
-			
-			<p class="description"><?php _e("Note: Email notifications will be sent as soon as you update these options, and will then be scheduled to repeat using the interval you have selected.", 'content-audit'); ?></p>
-		    </td>
+			 </td>
 	    </tr>
 	
 		<tr>

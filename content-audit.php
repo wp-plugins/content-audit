@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.2.1
+Version: 1.3
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -30,6 +30,7 @@ TODO:
 */
 
 // when activated, add option
+register_activation_hook( __FILE__, 'activate_content_audit_tax' );
 register_activation_hook(__FILE__, 'content_audit_activation');
 function content_audit_activation() {
 	if (!function_exists('register_taxonomy_for_object_type')) {
@@ -48,6 +49,7 @@ p.content-notes { font-style: italic; }';
 	$options['outdate'] = 1;
 	$options['outdate_unit'] = 'years';
 	$options['notify'] = 0;
+	$options['notify_now'] = 0;	
 	$options['notify_authors'] = 0;	
 	$options['interval'] = 'monthly';	
 	// set the new option
@@ -65,16 +67,8 @@ register_uninstall_hook( __FILE__, 'content_audit_delete_options' );
 function content_audit_delete_options() {
 	delete_option('content_audit');
 }
-
-// add settings link to plugin list
-add_filter('plugin_action_links', 'content_audit_plugin_actions', 10, 2);
-function content_audit_plugin_actions($links, $file) {
- 	if ($file == 'content-audit/content-audit.php' && function_exists("admin_url")) {
-		$settings_link = '<a href="' . admin_url('options-general.php?page=content-audit') . '">' . __('Settings', 'content-audit') . '</a>';
-		array_unshift($links, $settings_link); 
-	}
-	return $links;
-}
+// testing only
+//register_deactivation_hook( __FILE__, 'content_audit_delete_options' );
 
 // add the pages to the navigation menu
 add_action('admin_menu', 'content_audit_add_pages');
@@ -85,6 +79,7 @@ function content_audit_add_pages() {
 	// Add CSS to some specific admin pages
 	add_action("admin_head-$css", 'content_audit_css');
 	add_action("admin_head-post.php", 'content_audit_css');
+	add_action("admin_head-post-new.php", 'content_audit_css');
 	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-index.php", 'content_audit_css');
 }
@@ -102,6 +97,7 @@ function content_audit_css() {	?>
 	table#content-audit-outdated td.column-title { padding: 8px .5em; }
 	table#content-audit-outdated td.column-date { padding: 8px .5em 8px 0; width: 30%; }
 	table#content-audit-outdated th.column-date { text-align: left; width: 30%; padding: 0; }
+	label.indent { margin-left: 2em; }
 	</style>
 <?php 
 }

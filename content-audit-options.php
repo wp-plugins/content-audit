@@ -115,9 +115,9 @@ function content_audit_options() {
 
 	
 		<tr>
-	    <th scope="row"><?php _e('Content status labels', 'content-audit'); ?></th>
+	    <th scope="row"><?php _e('Content attributes', 'content-audit'); ?></th>
 		    <td>
-			    <a href="edit-tags.php?taxonomy=content_audit"><?php _e('Edit content audit status labels', 'content-audit'); ?></a>
+			    <a href="edit-tags.php?taxonomy=content_audit"><?php _e('Edit content audit attributes', 'content-audit'); ?></a>
 		    </td>
 	    </tr>
     </table>

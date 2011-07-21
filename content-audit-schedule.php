@@ -119,7 +119,7 @@ function content_audit_get_outdated() {
 	if (empty($posttypes)) return false;
 	else {
 		$posttypes = implode($posttypes, ',');
-		$longago = date('Y-m-d', strtotime('-'.$options['outdate'].' months'));
+		$longago = date('Y-m-d', strtotime('-'.$options['outdate'].' '.$options['outdate_unit']));
 		$oldposts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_author, post_type, post_modified FROM $wpdb->posts WHERE
 		                    post_type IN ('$posttypes') AND post_modified <= '$longago'
 							ORDER BY post_type, post_modified ASC") );

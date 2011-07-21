@@ -235,18 +235,25 @@ add_action('wp_head', 'content_audit_front_end_css');
 // Dashboard Widget
 function content_audit_dashboard_widget() {
 	$options = get_option('content_audit');
+	$alltables = '';
 	foreach ($options['types'] as $type => $val) {
+		$table = '';
 		if ($val == '1') {
 			$oldposts = get_posts('numberposts=5&post_type='.$type.'&content_audit=outdated&order=ASC&orderby=modified');
 			$obj = get_post_type_object( $type );
-			echo '<table class="widefat fixed" id="content-audit-outdated"><thead><tr><th>'.$obj->label.'</th><th  class="column-date">'.__('Last Modified', 'content-audit').'</th></tr></thead><tbody>';
 			foreach ($oldposts as $apost) {
-				echo '<tr class="author-self"><td class="column-title"><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></td>';
-				echo '<td class="column-date">'. mysql2date(get_option('date_format'), $apost->post_modified).'</td></tr>';
+				$table .= '<tr class="author-self"><td class="column-title"><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></td>';
+				$table .= '<td class="column-date">'. mysql2date(get_option('date_format'), $apost->post_modified).'</td></tr>';
 			}
-			echo '<tr><td class="column-title" colspan="2"><a href="edit.php?post_type='.$type.'&content_audit=outdated">'.__('See all...', 'content-audit').'</a></td></tr></tbody></table>';
+			if (!empty($table)) {
+				$table = '<table class="widefat fixed" id="content-audit-outdated"><thead><tr><th>'.$obj->label.'</th><th  class="column-date">'.__('Last Modified', 'content-audit').'</th></tr></thead><tbody>' . $table;
+				$table .= '<tr><td class="column-title" colspan="2"><a href="edit.php?post_type='.$type.'&content_audit=outdated">'.__('See all...', 'content-audit').'</a></td></tr></tbody></table>';
+				$alltables .= $table;
+			}
 		}
 	}
+	if (!empty($alltables)) echo $alltables;
+	else _e('Congratulations! All your content is up to date.', 'content-audit');
 }
 
 function content_audit_dashboard_widget_setup() {

@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.3
+Version: 1.3.1
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -26,10 +26,11 @@ Copyright 2010  Stephanie Leary  (email : steph@sillybean.net)
 
 /*
 TODO:
-* In quick edit, use JS to select current content owner (if any)
+* Show content owner field in quick edit
+** when this is fixed: http://core.trac.wordpress.org/ticket/16392
 */
 
-// when activated, add option
+// when activated, add option and create taxonomy terms
 register_activation_hook( __FILE__, 'activate_content_audit_tax' );
 register_activation_hook(__FILE__, 'content_audit_activation');
 function content_audit_activation() {
@@ -90,7 +91,7 @@ function content_audit_css() {	?>
 	#content_audit_meta label { padding-right: 2em; }
 	#content_audit_meta, #content_audit_meta .inside { overflow: auto; }
 	#audit-notes { width: 100%; }
-	#audit-notes textarea { width: 95%; margin: 0 1em 1em 0; }
+	#audit-notes textarea { width: 99%; margin: 0 1em 1em 0; }
 	#content_audit_form textarea { display: block; width: 30em; height: 10em; }
 	#posts-filter th#ID { width: 4em; }
 	table#content-audit-outdated { border: 0; }

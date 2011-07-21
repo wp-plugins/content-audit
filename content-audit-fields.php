@@ -47,21 +47,25 @@ add_action('admin_init', 'content_audit_boxes');
 /* Custom Fields */
 
 function content_audit_boxes() {
-	$options = get_option('content_audit');
-	if (current_user_can($options['roles'])) {
-		foreach ($options['types'] as $content_type => $val) {
-			if ($val) {
-				add_meta_box( 'content_audit_meta', __('Content Audit Notes','content-audit'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
-				add_meta_box( 'content_audit_owner', __('Content Owner','content-audit'), 'content_audit_owner_meta_box', $content_type, 'side', 'low' );
-				if ($content_type == 'attachment') {
-					add_filter('attachment_fields_to_edit', 'content_audit_media_fields', 10, 2);
-					add_filter('attachment_fields_to_save', 'save_content_audit_media_meta', 10, 2);
-				}
+	$options = get_option('content_audit');	
+	foreach ($options['types'] as $content_type => $val) {
+		if ($val) {
+			add_meta_box( 'content_audit_meta', __('Content Audit Notes','content-audit'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
+			add_meta_box( 'content_audit_owner', __('Content Owner','content-audit'), 'content_audit_owner_meta_box', $content_type, 'side', 'low' );
+			if ($content_type == 'attachment') {
+				add_filter('attachment_fields_to_edit', 'content_audit_media_fields', 10, 2);
+				add_filter('attachment_fields_to_save', 'save_content_audit_media_meta', 10, 2);
+			}
+			// let non-auditors see a read-only version of the taxonomy
+			if (!current_user_can($options['roles'])) {
+				add_meta_box( 'content_audit_taxes', __('Content Audit','content-audit'), 'content_audit_taxes_meta_box', $content_type, 'side', 'low' );
 			}
 		}
-		add_action('save_post', 'save_content_audit_meta_data');
 	}
-	else {
+	add_action('save_post', 'save_content_audit_meta_data');
+	
+	// don't show taxonomy checkboxes to non-auditors
+	if (!current_user_can($options['roles'])) {
 		add_action( 'admin_menu', 'remove_audit_taxonomy_boxes' );
 	}
 }
@@ -70,36 +74,62 @@ function remove_audit_taxonomy_boxes()
 {
 	$options = get_option('content_audit');
 	foreach ($options['types'] as $content_type => $val) {
-		if ($val)
+		if ($val) {
 			remove_meta_box( 'content_auditdiv', $content_type, 'side' );
+		}
 	}
 }
 
 function content_audit_notes_meta_box() {
 	global $post; 
+	$options = get_option('content_audit');
+	$notes = get_post_meta($post->ID, '_content_audit_notes', true);
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_notes_nonce', '_content_audit_notes_nonce'); 
 ?>
 <div id="audit-notes">
-	<textarea name="_content_audit_notes"><?php echo esc_textarea(get_post_meta($post->ID, '_content_audit_notes', true)); ?></textarea>
+	<?php if (current_user_can($options['roles'])) { ?>
+	<textarea name="_content_audit_notes"><?php echo esc_textarea($notes); ?></textarea>
+	<?php }
+	// let non-auditors read the notes. Same HTML that's allowed in posts. 
+	else echo wp_kses_post($notes); 
+	?>
 </div>
 <?php
 }
 
 function content_audit_owner_meta_box() {
 	global $post; 
+	$options = get_option('content_audit');
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_owner_nonce', '_content_audit_owner_nonce'); 
 ?>
 <div id="audit-owner">
 	<?php
 	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
 	if (empty($owner)) $owner = -1;
-	wp_dropdown_users( array(
-		'selected' => $owner, 
-		'name' => '_content_audit_owner', 
-		'show_option_none' => __('Select a user','content-audit'),
-	)); ?>
+	if (current_user_can($options['roles'])) {
+		wp_dropdown_users( array(
+			'selected' => $owner, 
+			'name' => '_content_audit_owner', 
+			'show_option_none' => __('Select a user','content-audit'),
+		));	
+	}
+	else {
+		// let non-auditors see the owner
+		if ($owner > 0) the_author_meta('display_name', $owner);
+	}
+	?>
 </div>
 <?php
+}
+
+// this is a display-only version of the Content Audit taxonomy
+function content_audit_taxes_meta_box() { ?>
+	<div id="audit-taxes">
+		<ul>
+		<?php wp_list_categories('title_li=&taxonomy=content_audit'); ?>
+		</ul>
+	</div>
+	<?php
 }
 
 function save_content_audit_meta_data( $post_id ) {
@@ -111,7 +141,7 @@ function save_content_audit_meta_data( $post_id ) {
 	}
 	
 	// check capabilites
-	if ( 'page' == $_POST['post_type'] && !current_user_can( 'edit_page', $post_id ) )
+	if (isset($_POST['post_type']) && 'page' == $_POST['post_type'] && !current_user_can( 'edit_page', $post_id ) )
 		return $post_id;
 			
 	// save fields	

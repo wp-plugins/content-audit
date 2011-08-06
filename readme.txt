@@ -1,6 +1,7 @@
 === Content Audit ===
 Contributors: sillybean
 Tags: content, audit, review, inventory
+Donate Link: http://sillybean.net/code/wordpress/content-audit/
 Requires at least: 3.1
 Tested up to: 3.2.1
 Stable tag: 1.3.1

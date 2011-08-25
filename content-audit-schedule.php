@@ -36,7 +36,7 @@ function content_audit_cron_activate() {
 	
 	if (!wp_next_scheduled('content_audit_outdated_email')) {
 		wp_schedule_event($start, $options['interval'], 'content_audit_outdated_email');
-		if ($options['notify_now'])
+		if (isset($options['notify_now']) && $options['notify_now'])
 			wp_schedule_event(time(), $options['interval'], 'content_audit_outdated_email');
 	}
 }
@@ -77,7 +77,8 @@ function content_audit_notify_owners() {
 						$owner = $apost->post_author;
 					}
 					// store the list of posts by owner, then by type
-					$userposts[$owner][$type][$apost->ID] = '<li><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></li>';
+					if ($owner > 0)
+						$userposts[$owner][$type][$apost->ID] = '<li><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></li>';
 				}
 			}
 		}

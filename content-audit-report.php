@@ -253,7 +253,8 @@ function content_audit_dashboard_widget() {
 		}
 	}
 	if (!empty($alltables)) echo $alltables;
-	else _e('Congratulations! All your content is up to date.', 'content-audit');
+	else echo '<p>'. __('Congratulations! All your content is up to date.', 'content-audit').'</p>';
+	echo '<p>'. sprintf(__('<a href="%s">Content Audit Overview</a>', 'content-audit'), 'index.php?page=content-audit').'</p>';
 }
 
 function content_audit_dashboard_widget_setup() {

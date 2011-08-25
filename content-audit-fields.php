@@ -17,6 +17,7 @@ function create_content_audit_tax() {
 			'label' => __('Content Audit Attributes', 'content-audit'),
 			'hierarchical' => true,
 			'show_tagcloud' => false,
+			'update_count_callback' => '_update_post_term_count',
 			'helps' => 'Enter content attributes separated by commas.',
 		)
 	);
@@ -29,6 +30,7 @@ function activate_content_audit_terms() {
 	wp_insert_term(__('Trivial','content-audit'), 'content_audit');
 	wp_insert_term(__('Review SEO','content-audit'), 'content_audit');
 	wp_insert_term(__('Review Style','content-audit'), 'content_audit');
+	wp_insert_term(__('Audited','content-audit'), 'content_audit');
 }
 
 add_action('admin_init', 'content_audit_taxonomies');

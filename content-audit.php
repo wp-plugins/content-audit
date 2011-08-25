@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.3.1
+Version: 1.4-alpha
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -75,10 +75,13 @@ function content_audit_delete_options() {
 add_action('admin_menu', 'content_audit_add_pages');
 
 function content_audit_add_pages() {
-    // Add a new submenu under Options:
-	$css = add_options_page(__('Content Audit Options', 'content-audit'), __('Content Audit', 'content-audit'), 'manage_options', 'content-audit', 'content_audit_options');
+    // Add a new submenu under Settings:
+	$opt = add_options_page(__('Content Audit Options', 'content-audit'), __('Content Audit', 'content-audit'), 'manage_options', 'content-audit', 'content_audit_options');
+	// Add the boss view under the Dashboard:
+	$dash = add_dashboard_page(__('Content Audit Overview', 'content-audit'), __('Content Audit Overview', 'content-audit'), 'manage_options', 'content-audit', 'content_audit_overview');
 	// Add CSS to some specific admin pages
-	add_action("admin_head-$css", 'content_audit_css');
+	add_action("admin_head-$opt", 'content_audit_css');
+	add_action("admin_head-$dash", 'content_audit_css');
 	add_action("admin_head-post.php", 'content_audit_css');
 	add_action("admin_head-post-new.php", 'content_audit_css');
 	add_action("admin_head-edit.php", 'content_audit_css');
@@ -93,6 +96,11 @@ function content_audit_css() {	?>
 	#audit-notes { width: 100%; }
 	#audit-notes textarea { width: 99%; margin: 0 1em 1em 0; }
 	#content_audit_form textarea { display: block; width: 30em; height: 10em; }
+	#boss-squares { margin: 2em 0; overflow: auto; }
+	#boss-squares li { float: left; height: 8em; padding: .5em 0; text-align: center; background: #f9f9f9; border: 1px solid #dfdfdf; border-radius: 3px; }
+	#boss-squares li a { display: block; text-decoration: none; }
+	#boss-squares li h3 { font-size: 2em; margin-top: 0; padding-top: 1em; }
+	#boss-squares li p { margin-bottom: 0; padding-bottom: 1em; }
 	#posts-filter th#ID { width: 4em; }
 	table#content-audit-outdated { border: 0; }
 	table#content-audit-outdated td.column-title { padding: 8px .5em; }
@@ -114,4 +122,5 @@ include_once(dirname (__FILE__)."/content-audit-fields.php");
 include_once(dirname (__FILE__)."/content-audit-options.php");
 include_once(dirname (__FILE__)."/content-audit-report.php");
 include_once(dirname (__FILE__)."/content-audit-schedule.php");
+include_once(dirname (__FILE__)."/content-audit-overview.php");
 ?>

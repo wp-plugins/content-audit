@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.4-alpha
+Version: 1.4-beta
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -102,6 +102,7 @@ function content_audit_css() {	?>
 	#boss-squares li h3 { font-size: 2em; margin-top: 0; padding-top: 1em; }
 	#boss-squares li p { margin-bottom: 0; padding-bottom: 1em; }
 	#posts-filter th#ID { width: 4em; }
+	table.boss-view { margin-bottom: 2em; }
 	table#content-audit-outdated { border: 0; }
 	table#content-audit-outdated td.column-title { padding: 8px .5em; }
 	table#content-audit-outdated td.column-date { padding: 8px .5em 8px 0; width: 30%; }

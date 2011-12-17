@@ -2,16 +2,12 @@
 // displays the overview page content
 function content_audit_overview() { ?>
 	<div class="wrap">
-	<form method="post" id="content_audit_form" action="options.php">
 	<?php 
 	$options = get_option('content_audit');
-	// get post types we're auditing
+	$printsquares = '';
 	$types = array();
-	$termlist = '';
-	$args=array(
-		'public'   => true,
-	);
-	$cpts = get_post_types($args, 'objects');
+	// get post types we're auditing
+	$cpts = get_post_types(array( 'public' => true ), 'objects');
 	foreach ($cpts as $cpt) {
 		if (isset($options['types'][$cpt->name]) && $options['types'][$cpt->name] == 1)
 			$types[$cpt->name] = $cpt->label;
@@ -29,76 +25,98 @@ function content_audit_overview() { ?>
 		$squares = $count + 1; 
 		$width = 100 / $squares;
 		$margin = 100 / ( $count * $squares );
-		$i = 1;
-	    echo '<ul id="boss-squares">';
-	    foreach ( $terms as $term ) {
-			if ($i == $count)
-				$margin = 0;
-	    	echo '<li style="width: '.$width.'%; margin-right: '.$margin.'%;"><a href="'.admin_url('index.php?page=content-audit&audit='.$term->slug).'"><h3>' . $term->count . '</h3><p>' . $term->name . '</p></a></li>';
-			$i++;
-			$termlist .= ','.$term->slug;
-	    }
-	    echo "</ul>";
-	}
-	
-	// then print a table where each row contains an owner/author, with a column for each content type containing the count for each of their assigned items
-	// we'll start with the first term unless they've already chosen something else
-	if (!isset($_GET['audit']) || !term_exists($_GET['audit'], 'content_audit'))
-		$audit = $terms[0];
-	else $audit = get_term_by('slug', $_GET['audit'], 'content_audit');
-	?>
-	<h2><?php echo $audit->name; ?></h2>
-	<table class="wp-list-table widefat fixed boss-view" cellspacing="0">
-	<thead>
-		<tr>
-			<th><?php _e("Content Owner"); ?></th>
-			<?php
-			foreach ($types as $label) { ?>
-				<th><?php echo $label; ?></th>
-			<?php } ?>
-		</tr>
-	</thead>
-	<tbody>
-		<?php
 		$i = 0;
-		$typelist = implode("','", array_keys($types));
-		// foreach content owner
-		$owners = get_content_audit_meta_values( '_content_audit_owner', $typelist );
-		foreach ($owners as $owner) {
-				$userinfo = get_userdata($owner);
-				$name = $userinfo->display_name;
-				if ($name == $userinfo->user_login)
-					$name = $userinfo->user_firstname .' '. $userinfo->user_lastname;
-				if ($i & 1) $class = ' class="alternate"'; else $class = '';
-		?>
-		<tr<?php echo $class; ?>>
-			<td><?php echo $name; ?></td>
-			<?php
-			foreach ($types as $type => $label) { 
-				$args = array(
-				    'post_type' => $type,
-				    'post_status' => 'publish',
-					'content_audit' => $audit->slug,
-					'meta_key'  => '_content_audit_owner',
-				    'meta_value' => $owner,
-				);
-				$num = count( get_posts( $args ) );
-				if ($type == 'attachment')
-					$url = admin_url('upload.php');
-				else
-					$url = admin_url('edit.php?post_type='.$type);
-				?>
-				<td><?php echo '<a href="'.$url.'&content_owner='.$owner.'&content_audit='.$audit->slug.'">'.$num.'</a>'; ?></td>
-			<?php } ?>
-		</tr>
-		<?php
-		$i++;
-		}
-		?>
-	</tbody>
-	</table>
-	</div>
-<?php 
+	    
+	    foreach ( $terms as $term ) {
+			$i++;
+			if ($i == $count) $margin = 0;
+	    	$printsquares .= '<li style="width: '.$width.'%; margin-right: '.$margin.'%;"><a href="'.admin_url('index.php?page=content-audit#'.$term->slug).'"><h3>' . $term->count . '</h3><p>' . $term->name . '</p></a></li>';
+	
+			if ($term->count > 0) {
+				// then print a table where each row contains an owner/author, 
+				// with a column for each content type containing the count for each of their assigned items
+				$tables[$term->slug] = '<h3 id="'.$term->slug.'">'. $term->name .'</h3>';
+				$tables[$term->slug] .= '<table class="wp-list-table widefat fixed boss-view" cellspacing="0">';
+				$tables[$term->slug] .= "<thead> \n <tr> \n <th>". __("Content Owner"). '</th>';
+				foreach ($types as $label) { 
+					$tables[$term->slug] .= '<th>'. $label .'</th>';
+				}
+				$tables[$term->slug] .= "\n </tr> \n </thead> \n <tbody> \n";
+				
+				$j = 0;
+				$posts = get_content_audit_posts($term->slug, array_keys($types));
+				foreach ($posts as $post) {
+					$owner = get_post_meta($post->ID, '_content_audit_owner', true);
+					$param = '_content_owner';
+					if (empty($owner)) {
+						$owner = $post->post_author;
+						$param = 'author';
+					}
+					$userinfo = get_userdata($owner);
+					
+					if ($j & 1) 
+						$class = ' class="alternate"'; 
+					else 
+						$class = '';
+						
+					$tables[$term->slug] .= '<tr'. $class .'><td>'. $userinfo->display_name .'</td>';
+				
+					foreach ($types as $type => $label) { 
+						if ($type == 'attachment')
+							$url = admin_url('upload.php');
+						else
+							$url = admin_url('edit.php?post_type='.$type);
+						$posts_of_type = get_content_audit_posts($term->slug, $type);
+
+						foreach ($posts_of_type as $key => $thispost) {
+							$skipkeys = array();
+							$content_owner = get_post_meta($thispost->ID, '_content_audit_owner', true);
+							
+							// don't count posts against an original author when the content owner is set
+							// ... and don't count posts where this user is neither author nor content owner
+							if ( ( !empty($content_owner) && (int)$content_owner != (int)$owner ) ||
+								( empty($content_owner) && (int)$thispost->post_author != (int)$owner ) )
+								$skipkeys[$thispost->ID] = $key;
+						}
+						foreach ($skipkeys as $id => $skipkey)
+							unset($posts_of_type[$skipkey]);
+
+						$num = count($posts_of_type);
+						$tables[$term->slug] .= '<td><a href="'. $url .'&'. $param .'='. $owner .'&content_audit='. $term->slug. '">'. $num .'</a></td>';
+					} // foreach type
+					$tables[$term->slug] .= '</tr>';
+			
+					$j++;
+				}  // foreach post
+				$tables[$term->slug] .= '</tbody></table>';
+			} // if $term->count > 0
+	    }  // foreach term
+	
+		echo '<ul id="boss-squares">'.$printsquares.'</ul>';
+/*
+		if (isset($_GET['audit']) && term_exists($_GET['audit'], 'content_audit'))
+			echo $tables[$_GET['audit']];
+		else
+/**/
+			echo implode('', $tables);			
+	} // if $count > 0
+	
+	echo '</div> <!-- .wrap -->'; 
+}
+
+function get_content_audit_posts($term, $types = 'page', $status = 'publish') {
+	$args = array(
+		'post_type' => $types,
+		'post_status' => $status,
+		'tax_query' => array(
+			array(
+				'taxonomy' => 'content_audit',
+				'field' => 'slug',
+				'terms' => $term
+			)
+		)
+	);
+	return get_posts( $args );
 }
 
 function get_content_audit_meta_values( $key = '', $types = 'page', $status = 'publish' ) {
@@ -113,7 +131,7 @@ function get_content_audit_meta_values( $key = '', $types = 'page', $status = 'p
     ", $key, $status);
 	// can't let prepare() handle this because it escapes the single quotes in between each post type, ARGH
 	$query = str_replace('@FOO@', $types, $query);
-    $r = $wpdb->get_col( $query ); 
+    $r = $wpdb->get_results( $query ); 
 	return $r;
 }
 ?>

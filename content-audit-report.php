@@ -8,21 +8,34 @@ function content_audit_column_setup() {
 		foreach ($options['types'] as $type => $val) {
 			
 			switch ($type) {
-				case 'post': if (!empty($val)) add_filter('manage_posts_columns', 'content_audit_columns');
+				case 'post': 
+					if ($val == 1) {
+						add_filter('manage_posts_columns', 'content_audit_columns');
+						add_action('manage_posts_custom_column', 'content_audit_custom_column', 10, 2);
+					}
 					break;
-				case 'page': if (!empty($val)) add_filter('manage_pages_columns', 'content_audit_columns');
+				case 'page': 
+					if ($val == 1) {
+						add_filter('manage_pages_columns', 'content_audit_columns');
+						add_action('manage_pages_custom_column', 'content_audit_custom_column', 10, 2);
+					}
 					break;
-				case 'attachment': if (!empty($val)) add_filter('manage_media_columns', 'content_audit_columns');
+				case 'attachment': 
+					if ($val == 1) {
+						add_filter('manage_media_columns', 'content_audit_columns');
+						add_action('manage_media_custom_column', 'content_audit_custom_column', 10, 2);
+					}
 					break;
-				default: add_filter('manage_'.$type.'_posts_columns', 'content_audit_columns');
+				default:
+				 	if (post_type_exists( $type ) && $options['types'][$type] == 1) {
+						add_filter('manage_'.$type.'_posts_columns', 'content_audit_columns'); 
+						if (is_post_type_hierarchical($type) == true)
+							add_action('manage_pages_custom_column', 'content_audit_custom_column', 10, 2);
+						else
+							add_action('manage_posts_custom_column', 'content_audit_custom_column', 10, 2);
+					}
 			}
-		
-			// fill in the columns
-			// (these three will cover all content types)
-			add_action('manage_posts_custom_column', 'content_audit_custom_column', 10, 2);
-			add_action('manage_pages_custom_column', 'content_audit_custom_column', 10, 2);
-			add_action('manage_media_custom_column', 'content_audit_custom_column', 10, 2);
-		
+
 			// add filter dropdowns
 			add_action('restrict_manage_posts', 'content_audit_restrict_content_authors');
 			add_action('restrict_manage_posts', 'content_audit_restrict_content_owners');
@@ -39,6 +52,15 @@ function content_audit_column_setup() {
 
 // rearrange the columns on the Edit screens
 function content_audit_columns($defaults) {
+	// make sure we rearrange columns only on custom post types we're auditing, and only for users who can audit
+	$options = get_option('content_audit');
+	if (isset($_GET['post_type']))
+		$type = $_GET['post_type'];
+	else 
+		$type = 'post';
+	if (!isset($options['types'][$type]) || $options['types'][$type] != "1" || !current_user_can($options['roles']))
+		return $defaults;
+	
 	// preserve the original column headings and remove (unset) default columns
 	if (isset($defaults['comments'])) {
 		$original['comments'] = $defaults['comments'];
@@ -75,29 +97,39 @@ function content_audit_columns($defaults) {
 
 // print the contents of the new Content Audit columns
 function content_audit_custom_column($column_name, $id) {
-	global $post;
-	if ($column_name == 'content_status') {
-		$terms = wp_get_object_terms($post->ID, 'content_audit', array('fields' => 'all'));
-		foreach ($terms as $term) {
-			if (!empty($_GET['post_type'])) $type = 'post_type='.$_GET['post_type'].'&';
-			else $type = '';
-			$termlist[] .= '<a href="edit.php?'.$type.'content_audit='.$term->slug.'">'.$term->name.'</a>';
-		}
-		if (!empty($termlist)) echo implode(', ', $termlist);
+	if (isset($_GET['post_type']) && !empty($_GET['post_type'])) 
+		$type = 'post_type='.$_GET['post_type'].'&';
+	else 
+		$type = '';
 
-		if (isset($_GET['mode']) && ($_GET['mode'] == 'excerpt'))
-			echo '<p>'.get_post_meta($post->ID, "_content_audit_notes", true).'</p>';
-	}
-	elseif ($column_name == 'ID') {
-		echo $post->ID;
-	}
-	elseif ($column_name == 'content_owner') {
-		$ownerID = get_post_meta($post->ID, "_content_audit_owner", true);
-		if (!empty($ownerID) && $ownerID > 0) {
-			if (!empty($_GET['post_type'])) $type = 'post_type='.$_GET['post_type'].'&';
-			else $type = '';
-			echo '<a href="edit.php?'.$type.'content_owner='.$ownerID.'">'.get_the_author_meta('display_name', $ownerID ).'</a>';
-		}
+	switch ($column_name) {
+		case 'ID':
+			echo $id;
+		break;
+		
+		case 'content_owner': 
+			$ownerID = get_post_meta($id, "_content_audit_owner", true);
+			if (!empty($ownerID) && $ownerID > 0) {
+				$url = 'edit.php?'.$type.'content_owner='.$ownerID;
+				echo '<a href="'.admin_url($url).'">'.get_the_author_meta('display_name', $ownerID ).'</a>';
+			}
+		break;
+		
+		case 'content_status':
+			$terms = wp_get_object_terms($id, 'content_audit', array('fields' => 'all'));
+			foreach ($terms as $term) {
+				if (!empty($term->name)) {
+					$url = 'edit.php?'.$type.'content_audit='.$term->slug;
+					$termlist[] .= '<a href="'.admin_url($url).'">'.$term->name.'</a>';
+				}
+			}
+			if (!empty($termlist)) 
+				echo implode(', ', $termlist);
+			if (isset($_GET['mode']) && ($_GET['mode'] == 'excerpt'))
+				echo '<p>'.get_post_meta($id, "_content_audit_notes", true).'</p>';
+		break;
+		
+		default: break;
 	}
 }
 

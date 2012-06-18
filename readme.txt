@@ -29,6 +29,7 @@ If you would like to send me a translation, please write to me through <a href="
 1. The options screen
 1. Edit pages, with the content audit columns and filter dropdowns
 1. Edit a page, with the content audit notes, owner, and status boxes
+1. The overview screen under the Dashboard
 
 == Upgrade Notice ==
 

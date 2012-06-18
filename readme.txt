@@ -35,13 +35,15 @@ If you would like to send me a translation, please write to me through <a href="
 = 1.3 =
 This version requires at least WP 3.1, and fixes compatibility problems with 3.2. Authors are now prevented from auditing their own posts when the auditor role option is set to Administrator or Editor. You can now choose whether to send email notifications immediately.
 = 1.4 =
-New Overview screen (the "boss view") under Dashboard.
+New per-post expiration dates. New Overview screen (the "boss view") under Dashboard. Supports custom roles.
 
 == Changelog ==
 
 = 1.4 =
 * Added "audited" status to the default list, to be used when the audit for that item is complete. This can be removed.
 * New Overview screen (the "boss view") under Dashboard. Shows counts for each content audit attribute (outdated, trivial, etc.) and lists how many of each content type belong to the various content owners.
+* New option to set an expiration date for individual posts/pages/etc., at which time the content will be marked as outdated.
+* Supports custom roles.
 = 1.3.1 =
 * Bugfix: The auto-outdate feature was using 'months' no matter what unit of time you chose. This is fixed.
 * Authors or contributors who can't audit content can now see the audit notes, owner, and attributes on their own posts.

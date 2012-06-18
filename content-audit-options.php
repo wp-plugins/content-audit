@@ -8,7 +8,10 @@ function content_audit_options() {
     <div class="wrap">
 	<form method="post" id="content_audit_form" action="options.php">
 		<?php settings_fields('content_audit'); 
-		$options = get_option('content_audit'); ?>
+		$options = get_option('content_audit'); 
+		//var_dump($options);
+		global $wp_roles;
+		?>
 
     <h2><?php _e( 'Content Audit Options', 'content-audit'); ?></h2>
     
@@ -36,14 +39,20 @@ function content_audit_options() {
 
 	    <tr>
 	    <th scope="row"><?php _e("Users allowed to audit", 'content-audit'); ?></th>
-		    <td>
-			<select name="content_audit[roles]" id="content_audit[roles]">
-				<option value="edit_dashboard" <?php selected('edit_dashboard', $options['roles']); ?>><?php _e('Administrators', 'content-audit'); ?></option>
-				<option value="edit_pages" <?php selected('edit_pages', $options['roles']); ?>><?php _e('Editors', 'content-audit'); ?></option>
-				<option value="publish_posts" <?php selected('publish_posts', $options['roles']); ?>><?php _e('Authors', 'content-audit'); ?></option>
-				<option value="edit_posts" <?php selected('edit_posts', $options['roles']); ?>><?php _e('Contributors', 'content-audit'); ?></option>
-				<option value="read" <?php selected('read', $options['roles']); ?>><?php _e('Subscribers', 'content-audit'); ?></option>
-			</select>
+		    <td><ul id="content_audit_roles">
+			<?php
+			foreach ($wp_roles->roles as $role) { ?>
+				<li><input type="checkbox" name="content_audit[rolenames][]" value="<?php echo strtolower($role['name']); ?>" 
+					<?php
+					// check the box if this role is included in the new option
+					if ((isset($options['rolenames']) && in_array(strtolower($role['name']), $options['rolenames']))  ||
+						// ... or if its capability was included in the old option
+						(isset($options['roles']) && $role['capabilities'][$options['roles']]))
+							echo ' checked="checked"';
+					?> /> <?php echo $role['name']; ?></li>
+			<?php }
+			?>
+			</ul>
 		    </td>
 	    </tr>
 

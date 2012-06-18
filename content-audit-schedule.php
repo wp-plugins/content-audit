@@ -48,16 +48,25 @@ function content_audit_cron_deactivate() {
 
 function content_audit_mark_outdated() {
 	$options = get_option('content_audit');
+	// handle auto-outdated content
 	if ($options['mark_outdated']) {
 		$oldposts = content_audit_get_outdated();
 		if (!empty($oldposts)) {
 			foreach ($oldposts as $oldpost) {
-				// mark post as outdated
 				wp_set_object_terms( $oldpost->ID, 'outdated', 'content_audit', true);
 			}
-		} // if (!empty($oldposts)) 
-	} // if ($options['mark_outdated']) 
-}  // function
+		} 
+	} 
+	
+	// handle manually set expiration dates
+	$date = date('n/j/y');
+	$expired = get_posts(array('meta_key' => '_content_audit_expiration_date', 'meta_value' => $date, 'meta_compare' => '>='));
+	if (!empty($expired)) {
+		foreach ($expired as $oldpost) {
+			wp_set_object_terms( $oldpost->ID, 'outdated', 'content_audit', true);
+		}
+	}
+} 
 
 function content_audit_notify_owners() {
 	$options = get_option('content_audit');
@@ -78,7 +87,7 @@ function content_audit_notify_owners() {
 					}
 					// store the list of posts by owner, then by type
 					if ($owner > 0)
-						$userposts[$owner][$type][$apost->ID] = '<li><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></li>';
+						$userposts[$owner][$type][$apost->ID] = '<li><a href="' . get_permalink($apost->ID) . '">' . $apost->post_title . '</a></li>';
 				}
 			}
 		}
@@ -121,9 +130,9 @@ function content_audit_get_outdated() {
 	else {
 		$posttypes = implode($posttypes, ',');
 		$longago = date('Y-m-d', strtotime('-'.$options['outdate'].' '.$options['outdate_unit']));
-		$oldposts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_author, post_type, post_modified FROM $wpdb->posts WHERE
-		                    post_type IN ('$posttypes') AND post_modified <= '$longago'
-							ORDER BY post_type, post_modified ASC") );
+		$oldposts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_author, post_type, post_modified 
+				FROM $wpdb->posts WHERE post_type IN ('$posttypes') AND post_modified <= '$longago'
+				ORDER BY post_type, post_modified ASC") );
 		return $oldposts;
 	}
 }

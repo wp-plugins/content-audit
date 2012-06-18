@@ -12,6 +12,13 @@ function content_audit_overview() { ?>
 		if (isset($options['types'][$cpt->name]) && $options['types'][$cpt->name] == 1)
 			$types[$cpt->name] = $cpt->label;
 	}
+	
+	$roles = $options['rolenames'];
+	foreach ($roles as $role)
+		$roleq = strtolower($role);
+	$userq = new WP_User_Query( $roleq );
+	$editors = $userq->get_results();
+	//var_dump($editors);
 	?>
 
     <h2><?php _e( 'Content Audit Overview', 'content-audit'); ?></h2>
@@ -43,68 +50,36 @@ function content_audit_overview() { ?>
 				}
 				$tables[$term->slug] .= "\n </tr> \n </thead> \n <tbody> \n";
 				
-				$j = 0;
-				$posts = get_content_audit_posts($term->slug, array_keys($types));
-				foreach ($posts as $post) {
-					$owner = get_post_meta($post->ID, '_content_audit_owner', true);
-					$param = '_content_owner';
-					if (empty($owner)) {
-						$owner = $post->post_author;
-						$param = 'author';
-					}
-					$userinfo = get_userdata($owner);
+				foreach ($editors as $editor) {
+					$userinfo = get_userdata($editor->ID);
 					
-					if ($j & 1) 
-						$class = ' class="alternate"'; 
-					else 
-						$class = '';
-						
-					$tables[$term->slug] .= '<tr'. $class .'><td>'. $userinfo->display_name .'</td>';
+					$tables[$term->slug] .= '<tr><td>'. $userinfo->display_name .'</td>';
 				
 					foreach ($types as $type => $label) { 
 						if ($type == 'attachment')
 							$url = admin_url('upload.php');
 						else
 							$url = admin_url('edit.php?post_type='.$type);
-						$posts_of_type = get_content_audit_posts($term->slug, $type);
+						$posts_with_owner = get_content_audit_posts($term->slug, $type, 'publish', '_content_audit_owner', $editor->ID);
+						$posts_with_author = get_content_audit_posts($term->slug, $type, 'publish', 'author', $editor->ID);
+						$num = count(array_merge($posts_with_owner, $posts_with_author));
 
-						foreach ($posts_of_type as $key => $thispost) {
-							$skipkeys = array();
-							$content_owner = get_post_meta($thispost->ID, '_content_audit_owner', true);
-							
-							// don't count posts against an original author when the content owner is set
-							// ... and don't count posts where this user is neither author nor content owner
-							if ( ( !empty($content_owner) && (int)$content_owner != (int)$owner ) ||
-								( empty($content_owner) && (int)$thispost->post_author != (int)$owner ) )
-								$skipkeys[$thispost->ID] = $key;
-						}
-						foreach ($skipkeys as $id => $skipkey)
-							unset($posts_of_type[$skipkey]);
-
-						$num = count($posts_of_type);
-						$tables[$term->slug] .= '<td><a href="'. $url .'&'. $param .'='. $owner .'&content_audit='. $term->slug. '">'. $num .'</a></td>';
+						$tables[$term->slug] .= '<td><a href="'. $url .'&_content_audit_owner='. $editor->ID .'&content_audit='. $term->slug. '">'. $num .'</a></td>';
 					} // foreach type
 					$tables[$term->slug] .= '</tr>';
-			
-					$j++;
 				}  // foreach post
 				$tables[$term->slug] .= '</tbody></table>';
 			} // if $term->count > 0
 	    }  // foreach term
 	
 		echo '<ul id="boss-squares">'.$printsquares.'</ul>';
-/*
-		if (isset($_GET['audit']) && term_exists($_GET['audit'], 'content_audit'))
-			echo $tables[$_GET['audit']];
-		else
-/**/
-			echo implode('', $tables);			
+		echo implode('', $tables);			
 	} // if $count > 0
 	
 	echo '</div> <!-- .wrap -->'; 
 }
 
-function get_content_audit_posts($term, $types = 'page', $status = 'publish') {
+function get_content_audit_posts($term, $types = 'page', $status = 'publish', $key = '', $val = '') {
 	$args = array(
 		'post_type' => $types,
 		'post_status' => $status,
@@ -114,8 +89,17 @@ function get_content_audit_posts($term, $types = 'page', $status = 'publish') {
 				'field' => 'slug',
 				'terms' => $term
 			)
-		)
+		),
 	);
+	if (!empty($key)) {
+		if ($key == 'author') {
+			$args['author'] = $val;
+		}
+		else {
+			$args['meta_key'] = $key;
+			$args['meta_value'] = $val;
+		}
+	}
 	return get_posts( $args );
 }
 

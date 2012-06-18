@@ -3,8 +3,12 @@
 add_action('admin_init', 'content_audit_column_setup');
 
 function content_audit_column_setup() {
+	global $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
-	if ( current_user_can($options['roles']) ) {
+
+	if (in_array($role, $options['rolenames'])) {
 		foreach ($options['types'] as $type => $val) {
 			
 			switch ($type) {
@@ -12,23 +16,27 @@ function content_audit_column_setup() {
 					if ($val == 1) {
 						add_filter('manage_posts_columns', 'content_audit_columns');
 						add_action('manage_posts_custom_column', 'content_audit_custom_column', 10, 2);
+						add_filter( 'manage_edit-post_sortable_columns', 'content_audit_register_sortable' );
 					}
 					break;
 				case 'page': 
 					if ($val == 1) {
 						add_filter('manage_pages_columns', 'content_audit_columns');
 						add_action('manage_pages_custom_column', 'content_audit_custom_column', 10, 2);
+						add_filter( 'manage_edit-page_sortable_columns', 'content_audit_register_sortable' );
 					}
 					break;
 				case 'attachment': 
 					if ($val == 1) {
 						add_filter('manage_media_columns', 'content_audit_columns');
 						add_action('manage_media_custom_column', 'content_audit_custom_column', 10, 2);
+						add_filter( 'manage_edit-media_sortable_columns', 'content_audit_register_sortable' );
 					}
 					break;
 				default:
 				 	if (post_type_exists( $type ) && $options['types'][$type] == 1) {
 						add_filter('manage_'.$type.'_posts_columns', 'content_audit_columns'); 
+						add_filter( 'manage_edit-'.$type.'_sortable_columns', 'content_audit_register_sortable' );
 						if (is_post_type_hierarchical($type) == true)
 							add_action('manage_pages_custom_column', 'content_audit_custom_column', 10, 2);
 						else
@@ -53,12 +61,15 @@ function content_audit_column_setup() {
 // rearrange the columns on the Edit screens
 function content_audit_columns($defaults) {
 	// make sure we rearrange columns only on custom post types we're auditing, and only for users who can audit
+	global $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
 	if (isset($_GET['post_type']))
 		$type = $_GET['post_type'];
 	else 
 		$type = 'post';
-	if (!isset($options['types'][$type]) || $options['types'][$type] != "1" || !current_user_can($options['roles']))
+	if (!isset($options['types'][$type]) || $options['types'][$type] != "1" || !in_array($role, $options['rolenames']))
 		return $defaults;
 	
 	// preserve the original column headings and remove (unset) default columns
@@ -90,6 +101,8 @@ function content_audit_columns($defaults) {
 	if (isset($original['tags'])) $defaults['tags'] = $original['tags'];
 	if (isset($original['comments'])) $defaults['comments'] = $original['comments'];
 	$defaults['date'] = $original['date'];
+	// set expiration date column
+	$defaults['expiration'] = __('Expiration', 'content-audit');
 	if (isset($original['analytics'])) $defaults['analytics'] = $original['analytics'];
 	// restore checkbox, add ID as the second column, then add the rest
     return array('cb' => $original['cb'], 'ID' => __('ID')) + $defaults;
@@ -129,9 +142,36 @@ function content_audit_custom_column($column_name, $id) {
 				echo '<p>'.get_post_meta($id, "_content_audit_notes", true).'</p>';
 		break;
 		
+		case 'expiration':
+			$date = get_post_meta($id, '_content_audit_expiration_date', true); 
+			// convert from timestamp to date string
+			if (!empty($date))
+				$date = date('Y/m/d', $date);
+			echo $date;
+		break;
+		
 		default: break;
 	}
 }
+
+// make expiration date column sortable
+// filters are added for each post type in the init function
+function content_audit_register_sortable( $columns ) {
+	$columns['expiration'] = 'expiration';
+	return $columns;
+}
+
+function content_audit_column_orderby( $vars ) {
+	if ( isset( $vars['orderby'] ) && 'expiration' == $vars['orderby'] ) {
+		$vars = array_merge( $vars, array(
+			'meta_key' => '_content_audit_expiration_date',
+			'orderby' => 'meta_value_num'
+		) );
+	}
+ 
+	return $vars;
+}
+add_filter( 'request', 'content_audit_column_orderby' );
 
 // print the dropdown box to filter posts by content status
 function content_audit_restrict_content_status() {

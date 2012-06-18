@@ -86,11 +86,16 @@ function content_audit_add_pages() {
 	add_action("admin_head-post-new.php", 'content_audit_css');
 	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-index.php", 'content_audit_css');
+	// Add JS and jQuery UI CSS to edit screens
+	add_action( 'admin_print_scripts-post.php', 'content_audit_scripts' );
+	add_action( 'admin_print_scripts-post-new.php', 'content_audit_scripts' );
+	add_action( 'admin_footer-post.php', 'content_audit_admin_footer' );
+	add_action( 'admin_footer-post-new.php', 'content_audit_admin_footer' );
 }
 
 function content_audit_css() {	?>
 	<style type="text/css">
-	#content_audit_types li { display: inline; padding-right: 2em; }
+	#content_audit_types li, #content_audit_roles li { display: inline; padding-right: 2em; }
 	#content_audit_meta label { padding-right: 2em; }
 	#content_audit_meta, #content_audit_meta .inside { overflow: auto; }
 	#audit-notes { width: 100%; }
@@ -102,6 +107,7 @@ function content_audit_css() {	?>
 	#boss-squares li h3 { font-size: 2em; margin-top: 0; padding-top: 1em; }
 	#boss-squares li p { margin-bottom: 0; padding-bottom: 1em; }
 	#posts-filter th#ID { width: 4em; }
+	#posts-filter th#expiration { width: 6em; }
 	table.boss-view { margin-bottom: 2em; }
 	table#content-audit-outdated { border: 0; }
 	table#content-audit-outdated td.column-title { padding: 8px .5em; }
@@ -112,7 +118,34 @@ function content_audit_css() {	?>
 <?php 
 }
 
+function content_audit_datepicker_css() {
+    wp_register_style( 'wp-jquery-ui', plugins_url('wp-jquery-ui.css', __FILE__) );
+}
+add_action( 'admin_init', 'content_audit_datepicker_css' );
+
+function content_audit_scripts() {
+	wp_enqueue_script('jquery');
+	wp_enqueue_script('jquery-ui-datepicker');
+	wp_enqueue_style( 'wp-jquery-ui' );
+}
+
+function content_audit_admin_footer() { 
+//	$screen = get_current_screen();
+//	if (in_array( $screen->id, array('post.php', 'post-new.php'))) { ?>
+	<script type="text/javascript">
+	   jQuery(document).ready(function(){
+	      jQuery('.datepicker').datepicker({
+	         dateFormat : 'm/d/y'
+	      });
+	   });
+	</script><?php
+//	}
+}
+
 // i18n
+
+$lang_dir = plugins_url('/languages', __FILE__);
+
 if (!defined('WP_PLUGIN_DIR'))
 	define('WP_PLUGIN_DIR', dirname(dirname(__FILE__))); 
 $lang_dir = basename(dirname(__FILE__)). '/languages';

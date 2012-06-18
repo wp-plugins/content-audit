@@ -36,9 +36,12 @@ function activate_content_audit_terms() {
 add_action('admin_init', 'content_audit_taxonomies');
 
 function content_audit_taxonomies() {
+	global $post, $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
 	foreach ($options['types'] as $content_type => $val) {
-		if ($val && current_user_can($options['roles']))
+		if ($val && in_array($role, $options['rolenames']))
 			register_taxonomy_for_object_type('content_audit', $content_type);
 	}
 }
@@ -49,17 +52,21 @@ add_action('admin_init', 'content_audit_boxes');
 /* Custom Fields */
 
 function content_audit_boxes() {
+	global $post, $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');	
 	foreach ($options['types'] as $content_type => $val) {
 		if ($val) {
 			add_meta_box( 'content_audit_meta', __('Content Audit Notes','content-audit'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
 			add_meta_box( 'content_audit_owner', __('Content Owner','content-audit'), 'content_audit_owner_meta_box', $content_type, 'side', 'low' );
+			add_meta_box( 'content_audit_exp_date', __('Expiration Date','content-audit'), 'content_audit_exp_date_meta_box', $content_type, 'side', 'low' );
 			if ($content_type == 'attachment') {
 				add_filter('attachment_fields_to_edit', 'content_audit_media_fields', 10, 2);
 				add_filter('attachment_fields_to_save', 'save_content_audit_media_meta', 10, 2);
 			}
 			// let non-auditors see a read-only version of the taxonomy
-			if (!current_user_can($options['roles'])) {
+			if (!in_array($role, $options['rolenames']))  {
 				add_meta_box( 'content_audit_taxes', __('Content Audit','content-audit'), 'content_audit_taxes_meta_box', $content_type, 'side', 'low' );
 			}
 		}
@@ -67,7 +74,7 @@ function content_audit_boxes() {
 	add_action('save_post', 'save_content_audit_meta_data');
 	
 	// don't show taxonomy checkboxes to non-auditors
-	if (!current_user_can($options['roles'])) {
+	if (!in_array($role, $options['rolenames']))  {
 		add_action( 'admin_menu', 'remove_audit_taxonomy_boxes' );
 	}
 }
@@ -83,13 +90,15 @@ function remove_audit_taxonomy_boxes()
 }
 
 function content_audit_notes_meta_box() {
-	global $post; 
+	global $post, $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
 	$notes = get_post_meta($post->ID, '_content_audit_notes', true);
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_notes_nonce', '_content_audit_notes_nonce'); 
 ?>
 <div id="audit-notes">
-	<?php if (current_user_can($options['roles'])) { ?>
+	<?php if (in_array($role, $options['rolenames'])) { ?>
 	<textarea name="_content_audit_notes"><?php echo esc_textarea($notes); ?></textarea>
 	<?php }
 	// let non-auditors read the notes. Same HTML that's allowed in posts. 
@@ -100,7 +109,9 @@ function content_audit_notes_meta_box() {
 }
 
 function content_audit_owner_meta_box() {
-	global $post; 
+	global $post, $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_owner_nonce', '_content_audit_owner_nonce'); 
 ?>
@@ -108,7 +119,7 @@ function content_audit_owner_meta_box() {
 	<?php
 	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
 	if (empty($owner)) $owner = -1;
-	if (current_user_can($options['roles'])) {
+	if (in_array($role, $options['rolenames'])) {
 		wp_dropdown_users( array(
 			'selected' => $owner, 
 			'name' => '_content_audit_owner', 
@@ -124,6 +135,29 @@ function content_audit_owner_meta_box() {
 <?php
 }
 
+function content_audit_exp_date_meta_box() {
+	global $post, $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
+	$options = get_option('content_audit');
+	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_exp_date_nonce', 'content_audit_exp_date_nonce'); 
+?>
+<div id="audit-exp-date">
+	<?php 
+	$date = get_post_meta($post->ID, '_content_audit_expiration_date', true); 
+	// convert from timestamp to date string
+	if (!empty($date))
+		$date = date('m/d/y', $date);
+	if (in_array($role, $options['rolenames'])) { ?>
+		<input type="text" class="widefat datepicker" name="_content_audit_expiration_date" value="<?php esc_attr_e($date); ?>" />
+	<?php }
+	else
+		// let non-auditors see the expiration date
+		echo $date; ?>
+</div>
+<?php
+}
+
 // this is a display-only version of the Content Audit taxonomy
 function content_audit_taxes_meta_box() { ?>
 	<div id="audit-taxes">
@@ -135,15 +169,19 @@ function content_audit_taxes_meta_box() { ?>
 }
 
 function save_content_audit_meta_data( $post_id ) {
-
 	if (defined('DOING_AJAX') && !DOING_AJAX) {
 		// check nonces
 		check_admin_referer('content_audit_notes_nonce', '_content_audit_notes_nonce');
 		check_admin_referer('content_audit_owner_nonce', '_content_audit_owner_nonce');
+		check_admin_referer('content_audit_exp_date_nonce', 'content_audit_exp_date_nonce');
 	}
 	
 	// check capabilites
-	if (isset($_POST['post_type']) && 'page' == $_POST['post_type'] && !current_user_can( 'edit_page', $post_id ) )
+	global $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
+	$options = get_option('content_audit');
+	if ( !in_array( $role, $options['rolenames'] ) )
 		return $post_id;
 			
 	// save fields	
@@ -160,6 +198,15 @@ function save_content_audit_meta_data( $post_id ) {
 	else 
 		update_post_meta($post_id, '_content_audit_owner', $_POST['_content_audit_owner']);
 	
+	if (empty($_POST['_content_audit_expiration_date'])) {
+		$storedfield = get_post_meta( $post_id, '_content_audit_expiration_date', true );
+		delete_post_meta($post_id, '_content_audit_expiration_date', $storedfield);
+	}
+	else {
+		// convert displayed date string to timestamp for storage
+		$date = strtotime($_POST['_content_audit_expiration_date']);
+		update_post_meta($post_id, '_content_audit_expiration_date', $date);
+	}
 	
 	if (empty($_POST['_content_audit_notes'])) {
 		$storedfield = get_post_meta( $post_id, '_content_audit_notes', true );

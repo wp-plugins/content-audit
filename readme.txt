@@ -4,7 +4,7 @@ Tags: content, audit, review, inventory
 Donate Link: http://sillybean.net/code/wordpress/content-audit/
 Requires at least: 3.1
 Tested up to: 3.2.1
-Stable tag: 1.3.1
+Stable tag: 1.4
 
 Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review for SEO or style. The plugin creates a custom taxonomy (like a new set of categories) that's visible only from the admin screens. Since the content status labels work just like categories, you can remove the built-in ones and add your own if you like. You can also assign a content owner (distinct from the original author) and keep notes. The IDs are revealed on the Edit screens so you can keep track of your content even if you change titles and permalinks. The plugin supports the new custom content types in 3.0.
 
@@ -40,10 +40,10 @@ New per-post expiration dates. New Overview screen (the "boss view") under Dashb
 == Changelog ==
 
 = 1.4 =
-* Added "audited" status to the default list, to be used when the audit for that item is complete. This can be removed.
 * New Overview screen (the "boss view") under Dashboard. Shows counts for each content audit attribute (outdated, trivial, etc.) and lists how many of each content type belong to the various content owners.
 * New option to set an expiration date for individual posts/pages/etc., at which time the content will be marked as outdated.
 * Supports custom roles.
+* Added "audited" status to the default list, to be used when the audit for that item is complete. This can be removed.
 = 1.3.1 =
 * Bugfix: The auto-outdate feature was using 'months' no matter what unit of time you chose. This is fixed.
 * Authors or contributors who can't audit content can now see the audit notes, owner, and attributes on their own posts.

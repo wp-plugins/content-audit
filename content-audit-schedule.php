@@ -59,8 +59,9 @@ function content_audit_mark_outdated() {
 	} 
 	
 	// handle manually set expiration dates
-	$date = date('n/j/y');
-	$expired = get_posts(array('meta_key' => '_content_audit_expiration_date', 'meta_value' => $date, 'meta_compare' => '>='));
+	$date = time();
+	$expired = get_posts(array('post_type' => 'any', 'post_status' => 'publish', 'posts_per_page' => -1, 
+		'meta_key' => '_content_audit_expiration_date', 'meta_value' => $date, 'meta_compare' => '<='));
 	if (!empty($expired)) {
 		foreach ($expired as $oldpost) {
 			wp_set_object_terms( $oldpost->ID, 'outdated', 'content_audit', true);

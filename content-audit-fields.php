@@ -225,6 +225,12 @@ function save_content_audit_media_meta( $post, $attachment ) {
 	
 	if (isset($attachment['audit_notes'])) 
 		update_post_meta($post['ID'], '_content_audit_notes', $attachment['audit_notes']);
+	
+	if (isset($attachment['_content_audit_expiration_date'])) {
+		// convert displayed date string to timestamp for storage
+		$date = strtotime($attachment['_content_audit_expiration_date']);
+		update_post_meta($post['ID'], '_content_audit_expiration_date', $date);
+	}
 		
 	return $post;
 }
@@ -235,6 +241,9 @@ function content_audit_media_fields($form_fields, $post) {
 	
 	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
 	if (empty($owner)) $owner = -1;
+	
+	$date = get_post_meta($post->ID, '_content_audit_expiration_date', true);
+	$date = strtotime($date);
 	
 	$owner_dropdown = wp_dropdown_users( array(
 		'selected' => $owner, 
@@ -252,8 +261,14 @@ function content_audit_media_fields($form_fields, $post) {
 	$form_fields['audit_notes'] = array(
 			'label' => __('Content Audit Notes'),
 			'input' => 'textarea',
-		/*	'html' => "<textarea name='attachments[$post->ID][audit_notes]' />$notes</textarea>", */
 			'value' => $notes,
+		);
+	
+	$form_fields['audit_expiration'] = array(
+			'label' => __('Expiration Date'),
+			'input' => 'text',
+			'value' => $date,
+			'class' => 'datepicker',
 		);
 		
 	return $form_fields;

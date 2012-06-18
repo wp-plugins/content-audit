@@ -18,7 +18,6 @@ function content_audit_overview() { ?>
 		$roleq = strtolower($role);
 	$userq = new WP_User_Query( $roleq );
 	$editors = $userq->get_results();
-	//var_dump($editors);
 	?>
 
     <h2><?php _e( 'Content Audit Overview', 'content-audit'); ?></h2>

@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.4-beta
+Version: 1.4
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -86,11 +86,13 @@ function content_audit_add_pages() {
 	add_action("admin_head-post-new.php", 'content_audit_css');
 	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-index.php", 'content_audit_css');
-	// Add JS and jQuery UI CSS to edit screens
+	// Add JS and jQuery UI CSS to post and media screens
 	add_action( 'admin_print_scripts-post.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-post-new.php', 'content_audit_scripts' );
+	add_action( 'admin_print_scripts-media.php', 'content_audit_scripts' );
 	add_action( 'admin_footer-post.php', 'content_audit_admin_footer' );
 	add_action( 'admin_footer-post-new.php', 'content_audit_admin_footer' );
+	add_action( 'admin_footer-media.php', 'content_audit_admin_footer' );
 }
 
 function content_audit_css() {	?>
@@ -134,9 +136,15 @@ function content_audit_admin_footer() {
 //	if (in_array( $screen->id, array('post.php', 'post-new.php'))) { ?>
 	<script type="text/javascript">
 	   jQuery(document).ready(function(){
+		  /* for post screens */
 	      jQuery('.datepicker').datepicker({
 	         dateFormat : 'm/d/y'
 	      });
+	  	  /* for media screens */
+		  jQuery('tr.audit_expiration input.text').datepicker({
+	         dateFormat : 'm/d/y'
+	      });
+	
 	   });
 	</script><?php
 //	}

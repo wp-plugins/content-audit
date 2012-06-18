@@ -27,7 +27,8 @@ function content_audit_options() {
 			    	if (!in_array($content_type->name, $ignored)) { ?>
 			    		<li>
 			    		<label>
-			    		<input type="checkbox" name="content_audit[types][<?php echo $content_type->name; ?>]" value="1" <?php checked('1', $options['types'][$content_type->name]); ?> />
+			    		<input type="checkbox" name="content_audit[types][<?php echo $content_type->name; ?>]" value="1" 
+					<?php if (isset($options['types'][$content_type->name])) checked('1', $options['types'][$content_type->name]); ?> />
 			    		<?php echo $content_type->label; ?></label>
 			    		</li>
 			    	<?php }
@@ -61,7 +62,7 @@ function content_audit_options() {
 	    <th scope="row"><?php _e("Outdated content", 'content-audit'); ?></th>
 		    <td>
 			   
-				<input type="checkbox" name="content_audit[mark_outdated]" value="1" <?php checked('1', $options['mark_outdated']); ?> />
+				<input type="checkbox" name="content_audit[mark_outdated]" value="1" <?php if (isset($options['mark_outdated'])) checked('1', $options['mark_outdated']); ?> />
 				<label><?php _e("Automatically mark content as outdated if it has not been modified in", 'content-audit'); ?></label> 
 				<input type="text" name="content_audit[outdate]" size="3" value="<?php echo esc_attr($options['outdate']); ?>" />
 			    <select name="content_audit[outdate_unit]">
@@ -80,7 +81,7 @@ function content_audit_options() {
 			    <td>
 					
 				<label>
-	    		<input type="checkbox" name="content_audit[notify]" value="1" <?php checked('1', $options['notify']); ?> />
+	    		<input type="checkbox" name="content_audit[notify]" value="1" <?php if (isset($options['notify'])) checked('1', $options['notify']); ?> />
 	    		<?php _e("Notify content owners of outdated content", 'content-audit'); ?> </label>
 				<label class="hidden"><?php _e("How often?", 'content-audit'); ?> </label>
 			    <select name="content_audit[interval]">
@@ -90,11 +91,11 @@ function content_audit_options() {
 			    </select>
 				<br />
 				<label class="indent">
-	    		<input type="checkbox" name="content_audit[notify_now]" value="1" <?php checked('1', $options['notify_now']); ?> />
+	    		<input type="checkbox" name="content_audit[notify_now]" value="1" <?php if (isset($options['notify_now'])) checked('1', $options['notify_now']); ?> />
 	    		<?php _e("Send notifications now", 'content-audit'); ?></label>
 				<br />
 				<label class="indent">
-	    		<input type="checkbox" name="content_audit[notify_authors]" value="1" <?php checked('1', $options['notify_authors']); ?> />
+	    		<input type="checkbox" name="content_audit[notify_authors]" value="1" <?php if (isset($options['notify_authors'])) checked('1', $options['notify_authors']); ?> />
 	    		<?php _e("Notify original author if no owner is selected", 'content-audit'); ?></label>
 			 </td>
 	    </tr>
@@ -104,7 +105,7 @@ function content_audit_options() {
 		    <td>
 				<?php if ($options['display'] == '0') $options['display_switch'] = '0'; // handling option from previous version ?>
 				<label>
-	    		<input type="checkbox" name="content_audit[display_switch]" value="1" <?php checked('1', $options['display_switch']); ?> />
+	    		<input type="checkbox" name="content_audit[display_switch]" value="1" <?php if (isset($options['display_switch'])) checked('1', $options['display_switch']); ?> />
 	    		<?php _e('Display content status, notes, and owner to logged-in auditors ', 'content-audit'); ?></label> 
 				
 				<label class="hidden"><?php _e("Where?", 'content-audit'); ?> </label>

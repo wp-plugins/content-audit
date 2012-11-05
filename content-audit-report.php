@@ -65,8 +65,8 @@ function content_audit_columns($defaults) {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
-	if (isset($_GET['post_type']))
-		$type = $_GET['post_type'];
+	if (isset($_REQUEST['post_type']))
+		$type = $_REQUEST['post_type'];
 	else 
 		$type = 'post';
 	if (!isset($options['types'][$type]) || $options['types'][$type] != "1" || !in_array($role, $options['rolenames']))
@@ -110,8 +110,8 @@ function content_audit_columns($defaults) {
 
 // print the contents of the new Content Audit columns
 function content_audit_custom_column($column_name, $id) {
-	if (isset($_GET['post_type']) && !empty($_GET['post_type'])) 
-		$type = 'post_type='.$_GET['post_type'].'&';
+	if (isset($_REQUEST['post_type']) && !empty($_REQUEST['post_type'])) 
+		$type = 'post_type='.$_REQUEST['post_type'].'&';
 	else 
 		$type = '';
 
@@ -178,7 +178,7 @@ function content_audit_restrict_content_status() {
 	$options = get_option('content_audit');
 	if (isset($_GET['content_audit'])) $content_status = $_GET['content_audit'];
 	else $content_status = ''; 
-	if (isset($_GET['post_type'])) $type = $_GET['post_type'];
+	if (isset($_REQUEST['post_type'])) $type = $_REQUEST['post_type'];
 	else $type = 'post';
 	
 	if (isset($options['types'][$type]) && $options['types'][$type] == '1') {
@@ -203,7 +203,7 @@ function content_audit_restrict_content_owners() {
 	$options = get_option('content_audit');
 	if (isset($_GET['content_owner'])) $owner = $_GET['content_owner'];
 	else $owner = '0'; 
-	if (isset($_GET['post_type'])) $type = $_GET['post_type'];
+	if (isset($_REQUEST['post_type'])) $type = $_REQUEST['post_type'];
 	else $type = 'post';
 	
 	if (isset($options['types'][$type]) && $options['types'][$type] == '1') {

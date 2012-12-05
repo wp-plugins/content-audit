@@ -5,7 +5,7 @@ function content_audit_overview() { ?>
 	<?php 
 	$options = get_option('content_audit');
 	$printsquares = '';
-	$types = array();
+	$types = $editors = $tables = array();
 	// get post types we're auditing
 	$cpts = get_post_types(array( 'public' => true ), 'objects');
 	foreach ($cpts as $cpt) {
@@ -13,11 +13,18 @@ function content_audit_overview() { ?>
 			$types[$cpt->name] = $cpt->label;
 	}
 	
-	$roles = $options['rolenames'];
-	foreach ($roles as $role)
-		$roleq = strtolower($role);
-	$userq = new WP_User_Query( $roleq );
-	$editors = $userq->get_results();
+	$roles = $options['roles'];	
+	foreach ($roles as $role) :
+        $users_query = new WP_User_Query( array( 
+            'fields' => 'all_with_meta', 
+            'role' => $role, 
+            'orderby' => 'display_name'
+            ) );
+        $results = $users_query->get_results();
+        if ($results) 
+			$editors = array_merge($editors, $results);
+    endforeach;
+	//var_dump($editors);
 	?>
 
     <h2><?php _e( 'Content Audit Overview', 'content-audit'); ?></h2>
@@ -72,7 +79,8 @@ function content_audit_overview() { ?>
 	    }  // foreach term
 	
 		echo '<ul id="boss-squares">'.$printsquares.'</ul>';
-		echo implode('', $tables);			
+		if (!empty($tables))
+			echo implode('', $tables);			
 	} // if $count > 0
 	
 	echo '</div> <!-- .wrap -->'; 

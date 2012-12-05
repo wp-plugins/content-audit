@@ -46,9 +46,7 @@ function content_audit_options() {
 				<li><input type="checkbox" name="content_audit[rolenames][]" value="<?php echo strtolower($role['name']); ?>" 
 					<?php
 					// check the box if this role is included in the new option
-					if ((isset($options['rolenames']) && in_array(strtolower($role['name']), $options['rolenames']))  ||
-						// ... or if its capability was included in the old option
-						(isset($options['roles']) && $role['capabilities'][$options['roles']]))
+					if ((isset($options['roles']) && in_array(strtolower($role['name']), $options['roles'])) )
 							echo ' checked="checked"';
 					?> /> <?php echo $role['name']; ?></li>
 			<?php }

@@ -7,8 +7,11 @@ function content_audit_column_setup() {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
+	$allowed = $options['roles'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
 
-	if (in_array($role, $options['rolenames'])) {
+	if (in_array($role, $allowed)) {
 		foreach ($options['types'] as $type => $val) {
 			
 			switch ($type) {

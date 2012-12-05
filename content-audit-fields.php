@@ -40,8 +40,11 @@ function content_audit_taxonomies() {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
+	$allowed = $options['roles'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
 	foreach ($options['types'] as $content_type => $val) {
-		if ($val && in_array($role, $options['rolenames']))
+		if ($val && in_array($role, $allowed))
 			register_taxonomy_for_object_type('content_audit', $content_type);
 	}
 }
@@ -55,7 +58,10 @@ function content_audit_boxes() {
 	global $post, $current_user;
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
-	$options = get_option('content_audit');	
+	$options = get_option('content_audit');
+	$allowed = $options['roles'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
 	foreach ($options['types'] as $content_type => $val) {
 		if ($val) {
 			add_meta_box( 'content_audit_meta', __('Content Audit Notes','content-audit'), 'content_audit_notes_meta_box', $content_type, 'normal', 'high' );
@@ -66,7 +72,7 @@ function content_audit_boxes() {
 				add_filter('attachment_fields_to_save', 'save_content_audit_media_meta', 10, 2);
 			}
 			// let non-auditors see a read-only version of the taxonomy
-			if (!in_array($role, $options['rolenames']))  {
+			if (!in_array($role, $allowed))  {
 				add_meta_box( 'content_audit_taxes', __('Content Audit','content-audit'), 'content_audit_taxes_meta_box', $content_type, 'side', 'low' );
 			}
 		}
@@ -74,7 +80,7 @@ function content_audit_boxes() {
 	add_action('save_post', 'save_content_audit_meta_data');
 	
 	// don't show taxonomy checkboxes to non-auditors
-	if (!in_array($role, $options['rolenames']))  {
+	if (!in_array($role, $allowed))  {
 		add_action( 'admin_menu', 'remove_audit_taxonomy_boxes' );
 	}
 }
@@ -94,11 +100,14 @@ function content_audit_notes_meta_box() {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
+	$allowed = $options['roles'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
 	$notes = get_post_meta($post->ID, '_content_audit_notes', true);
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_notes_nonce', '_content_audit_notes_nonce'); 
 ?>
 <div id="audit-notes">
-	<?php if (in_array($role, $options['rolenames'])) { ?>
+	<?php if (in_array($role, $allowed)) { ?>
 	<textarea name="_content_audit_notes"><?php echo esc_textarea($notes); ?></textarea>
 	<?php }
 	// let non-auditors read the notes. Same HTML that's allowed in posts. 
@@ -113,13 +122,16 @@ function content_audit_owner_meta_box() {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
+	$allowed = $options['roles'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_owner_nonce', '_content_audit_owner_nonce'); 
 ?>
 <div id="audit-owner">
 	<?php
 	$owner = get_post_meta($post->ID, '_content_audit_owner', true);
 	if (empty($owner)) $owner = -1;
-	if (in_array($role, $options['rolenames'])) {
+	if (in_array($role, $allowed)) {
 		wp_dropdown_users( array(
 			'selected' => $owner, 
 			'name' => '_content_audit_owner', 
@@ -140,6 +152,9 @@ function content_audit_exp_date_meta_box() {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
+	$allowed = $options['roles'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
 	if ( function_exists('wp_nonce_field') ) wp_nonce_field('content_audit_exp_date_nonce', 'content_audit_exp_date_nonce'); 
 ?>
 <div id="audit-exp-date">
@@ -148,7 +163,7 @@ function content_audit_exp_date_meta_box() {
 	// convert from timestamp to date string
 	if (!empty($date))
 		$date = date('m/d/y', $date);
-	if (in_array($role, $options['rolenames'])) { ?>
+	if (in_array($role, $allowed)) { ?>
 		<input type="text" class="widefat datepicker" name="_content_audit_expiration_date" value="<?php esc_attr_e($date); ?>" />
 	<?php }
 	else
@@ -181,7 +196,10 @@ function save_content_audit_meta_data( $post_id ) {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
-	if ( !in_array( $role, $options['rolenames'] ) )
+	$allowed = $options['roles'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
+	if ( !in_array( $role, $allowed ) )
 		return $post_id;
 			
 	// save fields	

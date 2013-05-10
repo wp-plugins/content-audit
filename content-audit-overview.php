@@ -9,11 +9,11 @@ function content_audit_overview() { ?>
 	// get post types we're auditing
 	$cpts = get_post_types(array( 'public' => true ), 'objects');
 	foreach ($cpts as $cpt) {
-		if (isset($options['types'][$cpt->name]) && $options['types'][$cpt->name] == 1)
+		if (in_array($cpt->name, $options['post_types']))
 			$types[$cpt->name] = $cpt->label;
 	}
 	
-	$roles = $options['roles'];	
+	$roles = $options['rolenames'];	
 	foreach ($roles as $role) :
         $users_query = new WP_User_Query( array( 
             'fields' => 'all_with_meta', 
@@ -28,7 +28,7 @@ function content_audit_overview() { ?>
 	?>
 
     <h2><?php _e( 'Content Audit Overview', 'content-audit'); ?></h2>
-
+	<p><a class="button secondary" href="<?php echo add_query_arg( array('format' => 'csv' ), home_url() ); ?>">Download as CSV</a></p>
 	<?php
 	// for each term in the audit taxonomy, print a box with a big number for the count
 	$terms = get_terms( 'content_audit', array('hide_empty' => 0) );
@@ -69,8 +69,9 @@ function content_audit_overview() { ?>
 						$posts_with_owner = get_content_audit_posts($term->slug, $type, 'publish', '_content_audit_owner', $editor->ID);
 						$posts_with_author = get_content_audit_posts($term->slug, $type, 'publish', 'author', $editor->ID);
 						$num = count(array_merge($posts_with_owner, $posts_with_author));
+						$url = add_query_arg( array('_content_audit_owner' => $editor->ID, 'content_audit' => $term->slug), $url);
 
-						$tables[$term->slug] .= '<td><a href="'. $url .'&_content_audit_owner='. $editor->ID .'&content_audit='. $term->slug. '">'. $num .'</a></td>';
+						$tables[$term->slug] .= '<td><a href="'. $url .'">'. $num .'</a></td>';
 					} // foreach type
 					$tables[$term->slug] .= '</tr>';
 				}  // foreach post
@@ -125,4 +126,58 @@ function get_content_audit_meta_values( $key = '', $types = 'page', $status = 'p
     $r = $wpdb->get_results( $query ); 
 	return $r;
 }
-?>
+
+// Export to CSV
+
+add_filter( 'template_include', 'content_audit_download_template_include' );
+function content_audit_download_template_include( $template ) {
+	if (!isset($_REQUEST['format']) || 'csv' !== $_REQUEST['format'])
+		return;
+	
+	global $post, $wpdb;
+
+	$tableheaders = array('ID', 'Title', 'Author', 'Content Owner', 'Status', 'Notes', 'Type', 'Created', 'Updated', 'Expires');
+	$sep = $headersep = '","';
+	$before = '"';
+	$after = '"'."\n";
+	$date_format = get_option('date_format');
+	$options = get_option('content_audit'); 
+	$types = $options['post_types'];
+	
+	header('Content-type: text/plain');
+	header('Content-Disposition: attachment; filename="content-audit-'.date('Ymdu').'.csv"');
+
+	echo $before . implode($headersep, $tableheaders) . $after;
+	
+	$results = get_posts(array(
+		'posts_per_page' => -1,
+		'post_type' => $types,
+		'post_status' => 'publish,inherit',
+		'orderby' => 'menu_order',
+		'order' => 'ASC'
+	));
+
+	foreach ($results as $post) {
+		$the_terms = '';
+		$terms = get_the_terms( $post->ID, 'content_audit' );
+		if (!empty($terms))
+			foreach ($terms as $term)
+				$the_terms .= $term->name.', ';
+		rtrim(', ', $the_terms);
+	
+		echo $before.
+			$post->ID.$sep.
+			$post->post_title.$sep.
+			$post->post_author.$sep.
+			get_post_meta($post->ID, '_content_audit_owner', true).$sep.
+			$the_terms.$sep.
+			get_post_meta($post->ID, '_content_audit_notes', true).$sep.
+			$post->post_type.$sep.
+			get_the_date($date_format).$sep.
+			the_modified_date($date_format, '', '', false).$sep.
+			get_post_meta($post->ID, '_content_audit_expiration_date', true).$sep.
+			$after;
+	}
+
+	exit; 
+}

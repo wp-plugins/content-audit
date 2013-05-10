@@ -7,37 +7,33 @@ function content_audit_column_setup() {
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
-	$allowed = $options['roles'];
+	if (!is_array($options['post_types']))
+		$options['post_types'] = array($options['post_types']);
+	$allowed = $options['rolenames'];
 	if (!is_array($allowed))
 		$allowed = array($allowed);
 
 	if (in_array($role, $allowed)) {
-		foreach ($options['types'] as $type => $val) {
+		foreach ($options['post_types'] as $type) {
 			
 			switch ($type) {
 				case 'post': 
-					if ($val == 1) {
 						add_filter('manage_posts_columns', 'content_audit_columns');
 						add_action('manage_posts_custom_column', 'content_audit_custom_column', 10, 2);
 						add_filter( 'manage_edit-post_sortable_columns', 'content_audit_register_sortable' );
-					}
 					break;
 				case 'page': 
-					if ($val == 1) {
 						add_filter('manage_pages_columns', 'content_audit_columns');
 						add_action('manage_pages_custom_column', 'content_audit_custom_column', 10, 2);
 						add_filter( 'manage_edit-page_sortable_columns', 'content_audit_register_sortable' );
-					}
 					break;
 				case 'attachment': 
-					if ($val == 1) {
 						add_filter('manage_media_columns', 'content_audit_columns');
 						add_action('manage_media_custom_column', 'content_audit_custom_column', 10, 2);
 						add_filter( 'manage_edit-media_sortable_columns', 'content_audit_register_sortable' );
-					}
 					break;
 				default:
-				 	if (post_type_exists( $type ) && $options['types'][$type] == 1) {
+				 	if (post_type_exists( $type ) && in_array($type, $options['post_types']) ) {
 						add_filter('manage_'.$type.'_posts_columns', 'content_audit_columns'); 
 						add_filter( 'manage_edit-'.$type.'_sortable_columns', 'content_audit_register_sortable' );
 						if (is_post_type_hierarchical($type) == true)
@@ -72,7 +68,7 @@ function content_audit_columns($defaults) {
 		$type = $_REQUEST['post_type'];
 	else 
 		$type = 'post';
-	if (!isset($options['types'][$type]) || $options['types'][$type] != "1" || !in_array($role, $options['rolenames']))
+	if (!in_array($type, $options['post_types']) || !in_array($role, $options['rolenames']))
 		return $defaults;
 	
 	// preserve the original column headings and remove (unset) default columns
@@ -99,6 +95,7 @@ function content_audit_columns($defaults) {
 	// insert content owner and status taxonomy columns
 	$defaults['content_owner'] = __('Content Owner', 'content-audit');
     $defaults['content_status'] = __('Content Status', 'content-audit');
+	$defaults['content_notes'] = __('Notes', 'content-audit');
 	// restore default columns
 	if (isset($original['categories'])) $defaults['categories'] = $original['categories'];
 	if (isset($original['tags'])) $defaults['tags'] = $original['tags'];
@@ -127,11 +124,12 @@ function content_audit_custom_column($column_name, $id) {
 			$ownerID = get_post_meta($id, "_content_audit_owner", true);
 			if (!empty($ownerID) && $ownerID > 0) {
 				$url = 'edit.php?'.$type.'content_owner='.$ownerID;
-				echo '<a href="'.admin_url($url).'">'.get_the_author_meta('display_name', $ownerID ).'</a>';
+				echo '<a id="_content_audit_owner-'.$id.'" title="'.$ownerID.'" href="'.admin_url($url).'">'.get_the_author_meta('display_name', $ownerID ).'</a>';
 			}
 		break;
 		
 		case 'content_status':
+			$termlist = array();
 			$terms = wp_get_object_terms($id, 'content_audit', array('fields' => 'all'));
 			foreach ($terms as $term) {
 				if (!empty($term->name)) {
@@ -141,16 +139,22 @@ function content_audit_custom_column($column_name, $id) {
 			}
 			if (!empty($termlist)) 
 				echo implode(', ', $termlist);
-			if (isset($_GET['mode']) && ($_GET['mode'] == 'excerpt'))
-				echo '<p>'.get_post_meta($id, "_content_audit_notes", true).'</p>';
+		break;
+		
+		case 'content_notes': 
+			echo '<p id="_content_audit_notes-'.$id.'">'.get_post_meta($id, "_content_audit_notes", true).'</p>';
 		break;
 		
 		case 'expiration':
-			$date = get_post_meta($id, '_content_audit_expiration_date', true); 
+			$date = get_post_meta($id, '_content_audit_expiration_date', true);
+			$datecontent = $datetitle = '';
 			// convert from timestamp to date string
-			if (!empty($date))
-				$date = date('Y/m/d', $date);
-			echo $date;
+			if (!empty($date)) {
+				$datecontent = date('Y/m/d', $date);
+				// different format for the datepicker
+				$datetitle = esc_attr( date('n/j/Y', $date) );
+			}
+			echo '<span id="_content_audit_expiration_date-'.$id.'" title="'.$datetitle.'">' . $datecontent .'</span>';
 		break;
 		
 		default: break;
@@ -184,7 +188,7 @@ function content_audit_restrict_content_status() {
 	if (isset($_REQUEST['post_type'])) $type = $_REQUEST['post_type'];
 	else $type = 'post';
 	
-	if (isset($options['types'][$type]) && $options['types'][$type] == '1') {
+	if (in_array($type, $options['post_types'])) {
 		?>
 		<select name="content_audit" id="content_audit" class="postform">
 		<option value="0"><?php _e("Show all statuses", 'content-audit'); ?></option>
@@ -209,7 +213,7 @@ function content_audit_restrict_content_owners() {
 	if (isset($_REQUEST['post_type'])) $type = $_REQUEST['post_type'];
 	else $type = 'post';
 	
-	if (isset($options['types'][$type]) && $options['types'][$type] == '1') {
+	if (in_array($type, $options['post_types'])) {
 		wp_dropdown_users(
 			array(
 				'show_option_all' => __('Show all owners', 'content-audit'),
@@ -272,8 +276,15 @@ function add_quickedit_content_owner($column_name, $type) {
 
 // Prints the content status, notes, and owner on the front end
 function content_audit_front_end_display($content) {
+	global $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
-	if (!empty($options['display_switch']) && (current_user_can($options['roles']))) {
+	$allowed = $options['rolenames'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
+		
+	if (!empty($options['display_switch']) && in_array($role, $allowed)) {
 		$out = content_audit_notes(false);		
 		if ($options['display'] == 'above') return $out.$content;
 		elseif ($options['display'] == 'below') return $content.$out;
@@ -300,8 +311,15 @@ function content_audit_notes($echo = true) {
 
 // Prints the CSS for the front end
 function content_audit_front_end_css() {
+	global $current_user;
+	get_currentuserinfo();
+	$role = $current_user->roles[0];
 	$options = get_option('content_audit');
-	if (!empty($options['display']) && (current_user_can($options['roles']))) {	
+	$allowed = $options['rolenames'];
+	if (!is_array($allowed))
+		$allowed = array($allowed);
+		
+	if (!empty($options['display']) && in_array($role, $allowed)) {	
 		echo '<style type="text/css">'.$options['css'].'</style>';
 	}
 }
@@ -311,20 +329,18 @@ add_action('wp_head', 'content_audit_front_end_css');
 function content_audit_dashboard_widget() {
 	$options = get_option('content_audit');
 	$alltables = '';
-	foreach ($options['types'] as $type => $val) {
-		$table = '';
-		if ($val == '1') {
-			$oldposts = get_posts('numberposts=5&post_type='.$type.'&content_audit=outdated&order=ASC&orderby=modified');
-			$obj = get_post_type_object( $type );
-			foreach ($oldposts as $apost) {
-				$table .= '<tr class="author-self"><td class="column-title"><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></td>';
-				$table .= '<td class="column-date">'. mysql2date(get_option('date_format'), $apost->post_modified).'</td></tr>';
-			}
-			if (!empty($table)) {
-				$table = '<table class="widefat fixed" id="content-audit-outdated"><thead><tr><th>'.$obj->label.'</th><th  class="column-date">'.__('Last Modified', 'content-audit').'</th></tr></thead><tbody>' . $table;
-				$table .= '<tr><td class="column-title" colspan="2"><a href="edit.php?post_type='.$type.'&content_audit=outdated">'.__('See all...', 'content-audit').'</a></td></tr></tbody></table>';
-				$alltables .= $table;
-			}
+	foreach ($options['post_types'] as $type) {
+		$table = '';		
+		$oldposts = get_posts('numberposts=5&post_type='.$type.'&content_audit=outdated&order=ASC&orderby=modified');
+		$obj = get_post_type_object( $type );
+		foreach ($oldposts as $apost) {
+			$table .= '<tr class="author-self"><td class="column-title"><a href="'.get_permalink($apost->ID).'">'.$apost->post_title.'</a></td>';
+			$table .= '<td class="column-date">'. mysql2date(get_option('date_format'), $apost->post_modified).'</td></tr>';
+		}
+		if (!empty($table)) {
+			$table = '<table class="widefat fixed" id="content-audit-outdated"><thead><tr><th>'.$obj->label.'</th><th  class="column-date">'.__('Last Modified', 'content-audit').'</th></tr></thead><tbody>' . $table;
+			$table .= '<tr><td class="column-title" colspan="2"><a href="edit.php?post_type='.$type.'&content_audit=outdated">'.__('See all...', 'content-audit').'</a></td></tr></tbody></table>';
+			$alltables .= $table;
 		}
 	}
 	if (!empty($alltables)) echo $alltables;

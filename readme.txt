@@ -1,12 +1,14 @@
 === Content Audit ===
 Contributors: sillybean
 Tags: content, audit, review, inventory
-Donate Link: http://sillybean.net/code/wordpress/content-audit/
+Donate Link: http://stephanieleary.com/code/wordpress/content-audit/
 Requires at least: 3.1
 Tested up to: 3.5
-Stable tag: 1.4.2
+Stable tag: 1.5
 
 Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review for SEO or style. The plugin creates a custom taxonomy (like a new set of categories) that's visible only from the admin screens. Since the content status labels work just like categories, you can remove the built-in ones and add your own if you like. You can also assign a content owner (distinct from the original author) and keep notes. The IDs are revealed on the Edit screens so you can keep track of your content even if you change titles and permalinks. The plugin supports the new custom content types in 3.0.
+
+There's an Overview report under the Dashboard menu that shows you which posts/pages/attachments/etc. need attention, sorted by user. This screen also lets you export a CSV file of the audit report.
 
 The plugin also creates three new filters on the Edit screens: author, content owner, and content status. This should make it easy to narrow your focus to just a few pages at a time.
 
@@ -30,16 +32,17 @@ If you would like to send me a translation, please write to me through <a href="
 1. Edit pages, with the content audit columns and filter dropdowns
 1. Edit a page, with the content audit notes, owner, and status boxes
 1. The overview screen under the Dashboard
-
-== Upgrade Notice ==
-
-= 1.3 =
-This version requires at least WP 3.1, and fixes compatibility problems with 3.2. Authors are now prevented from auditing their own posts when the auditor role option is set to Administrator or Editor. You can now choose whether to send email notifications immediately.
-= 1.4 =
-New per-post expiration dates. New Overview screen (the "boss view") under Dashboard. Supports custom roles.
+1. Quick Edit with the Content Audit fields
+1. Categorizing a page from the front end using the admin bar
 
 == Changelog ==
 
+= 1.5 =
+* Fixed various permissions-related issues, including the Overview screen.
+* Added Audit links to the admin bar, allowing auditors to quickly categorize or trash content from the front end.
+* Added Content Audit fields to Quick Edit and Bulk Edit.
+* Added a CSV export of the audit report, available from the Overview screen.
+* Fixed a bug where the content owner field was saved for every post, even when no owner was set.
 = 1.4.2 =
 * Fixed various notices and warnings.
 = 1.4.1 =

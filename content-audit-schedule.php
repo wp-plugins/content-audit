@@ -75,21 +75,19 @@ function content_audit_notify_owners() {
 		$userposts = array();
 		$from = get_option('admin_email');
 		// get all types we're auditing
-		foreach ($options['types'] as $type => $val) {
-			if ($val == '1') {
-				// get all outdated posts of this type (published status only)
-				$oldposts = get_posts('numberposts=-1&post_type='.$type.'&content_audit=outdated&order=ASC&orderby=modified');
-				foreach ($oldposts as $apost) {
-					// 	if it has a content owner, assign to owner's ID
-					$owner = get_post_meta($apost->ID, "_content_audit_owner", true);
-					//	otherwise, if we're notifying authors, add to author's ID
-					if (empty($owner) && ($options['notify_authors'])) {
-						$owner = $apost->post_author;
-					}
-					// store the list of posts by owner, then by type
-					if ($owner > 0)
-						$userposts[$owner][$type][$apost->ID] = '<li><a href="' . get_permalink($apost->ID) . '">' . $apost->post_title . '</a></li>';
+		foreach ($options['post_types'] as $type) {
+			// get all outdated posts of this type (published status only)
+			$oldposts = get_posts('numberposts=-1&post_type='.$type.'&content_audit=outdated&order=ASC&orderby=modified');
+			foreach ($oldposts as $apost) {
+				// 	if it has a content owner, assign to owner's ID
+				$owner = get_post_meta($apost->ID, "_content_audit_owner", true);
+				//	otherwise, if we're notifying authors, add to author's ID
+				if (empty($owner) && ($options['notify_authors'])) {
+					$owner = $apost->post_author;
 				}
+				// store the list of posts by owner, then by type
+				if ($owner > 0)
+					$userposts[$owner][$type][$apost->ID] = '<li><a href="' . get_permalink($apost->ID) . '">' . $apost->post_title . '</a></li>';
 			}
 		}
 		// update_option( 'content-audit-status', $userposts );  // debug
@@ -121,15 +119,10 @@ function content_audit_notify_owners() {
 function content_audit_get_outdated() {
 	global $wpdb;
 	$options = get_option('content_audit');
-	$types = $options['types'];
-	$posttypes = array();
-	foreach ($types as $type => $val) {
-		if ($val == '1') $posttypes[] .= $type;
-	}
 	
-	if (empty($posttypes)) return false;
+	if (empty($options['post_types'])) return false;
 	else {
-		$posttypes = implode($posttypes, ',');
+		$posttypes = implode($options['post_types'], ',');
 		$longago = date('Y-m-d', strtotime('-'.$options['outdate'].' '.$options['outdate_unit']));
 		$oldposts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_author, post_type, post_modified 
 				FROM $wpdb->posts WHERE post_type IN ('$posttypes') AND post_modified <= '$longago'

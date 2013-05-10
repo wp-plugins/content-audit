@@ -8,8 +8,19 @@ function content_audit_options() {
     <div class="wrap">
 	<form method="post" id="content_audit_form" action="options.php">
 		<?php settings_fields('content_audit'); 
-		$options = get_option('content_audit'); 
-		//var_dump($options);
+		$options = get_option('content_audit');
+		// var_dump($options); 
+		// convert from old options
+		if (isset($options['types']) && !isset($options['post_types'])) { 
+			$options['post_types'] = array();
+			foreach($options['types'] as $type => $val) {
+				array_push($options['post_types'], $type);
+			}
+			unset($options['types']);
+		}
+		if (!is_array($options['post_types']))
+			$options['post_types'] = array($options['post_types']);
+		
 		global $wp_roles;
 		?>
 
@@ -22,13 +33,13 @@ function content_audit_options() {
 			    <ul id="content_audit_types">
 			    <?php
 			    $content_types = get_post_types('', 'objects');
-			    $ignored = array('revision', 'nav_menu_item');
+			    $ignored = array('revision', 'nav_menu_item', 'deprecated_log');
 			    foreach ($content_types as $content_type) {
 			    	if (!in_array($content_type->name, $ignored)) { ?>
 			    		<li>
 			    		<label>
-			    		<input type="checkbox" name="content_audit[types][<?php echo $content_type->name; ?>]" value="1" 
-					<?php if (isset($options['types'][$content_type->name])) checked('1', $options['types'][$content_type->name]); ?> />
+			    		<input type="checkbox" name="content_audit[post_types][]" value="<?php echo $content_type->name; ?>" 
+					<?php if (in_array($content_type->name, $options['post_types'])) echo 'checked="checked"'; ?> />
 			    		<?php echo $content_type->label; ?></label>
 			    		</li>
 			    	<?php }
@@ -46,7 +57,7 @@ function content_audit_options() {
 				<li><input type="checkbox" name="content_audit[rolenames][]" value="<?php echo strtolower($role['name']); ?>" 
 					<?php
 					// check the box if this role is included in the new option
-					if ((isset($options['roles']) && in_array(strtolower($role['name']), $options['roles'])) )
+					if ((isset($options['rolenames']) && in_array(strtolower($role['name']), $options['rolenames'])) )
 							echo ' checked="checked"';
 					?> /> <?php echo $role['name']; ?></li>
 			<?php }

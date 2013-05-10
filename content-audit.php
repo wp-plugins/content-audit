@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.4.2
+Version: 1.5
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -26,8 +26,8 @@ Copyright 2010  Stephanie Leary  (email : steph@sillybean.net)
 
 /*
 TODO:
-* Show content owner field in quick edit
-** when this is fixed: http://core.trac.wordpress.org/ticket/16392
+* Eliminate JS for custom fields in quick edit
+* when this is fixed: http://core.trac.wordpress.org/ticket/16392
 */
 
 // when activated, add option and create taxonomy terms
@@ -40,8 +40,8 @@ function content_audit_activation() {
 	}
 	// set defaults
 	$options = array();	
-	$options['types'] = array('page' => 1);
-	$options['roles'] = array('administrator','editor');
+	$options['post_types'] = array('page');
+	$options['rolenames'] = array('administrator','editor');
 	$options['display_switch'] = '0';
 	$options['display'] = '0';
 	$options['css'] = 'div.content-audit { background: #ffc; }
@@ -82,17 +82,23 @@ function content_audit_add_pages() {
 	// Add CSS to some specific admin pages
 	add_action("admin_head-$opt", 'content_audit_css');
 	add_action("admin_head-$dash", 'content_audit_css');
+	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-post.php", 'content_audit_css');
 	add_action("admin_head-post-new.php", 'content_audit_css');
-	add_action("admin_head-edit.php", 'content_audit_css');
+//	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-index.php", 'content_audit_css');
-	// Add JS and jQuery UI CSS to post and media screens
+	// Add jQuery UI CSS to post and media screens
+//	add_action( 'admin_print_scripts-edit.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-post.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-post-new.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-media.php', 'content_audit_scripts' );
+	// initialize datepicker on post ane media screens
+//	add_action( 'admin_footer-edit.php', 'content_audit_admin_footer' );
 	add_action( 'admin_footer-post.php', 'content_audit_admin_footer' );
 	add_action( 'admin_footer-post-new.php', 'content_audit_admin_footer' );
 	add_action( 'admin_footer-media.php', 'content_audit_admin_footer' );
+	// add quick/bulk edit js
+	add_action( 'admin_print_scripts-edit.php', 'content_audit_enqueue_edit_scripts' );
 }
 
 function content_audit_css() {	?>
@@ -131,9 +137,7 @@ function content_audit_scripts() {
 	wp_enqueue_style( 'wp-jquery-ui' );
 }
 
-function content_audit_admin_footer() { 
-//	$screen = get_current_screen();
-//	if (in_array( $screen->id, array('post.php', 'post-new.php'))) { ?>
+function content_audit_admin_footer() { ?>
 	<script type="text/javascript">
 	   jQuery(document).ready(function(){
 		  /* for post screens */
@@ -147,17 +151,14 @@ function content_audit_admin_footer() {
 	
 	   });
 	</script><?php
-//	}
+}
+
+function content_audit_enqueue_edit_scripts() {
+	wp_enqueue_script( 'content_audit_quickedit', plugins_url( 'quickedit.js', __FILE__ ), array( 'jquery', 'inline-edit-post' ), '', true );
 }
 
 // i18n
-
-$lang_dir = plugins_url('/languages', __FILE__);
-
-if (!defined('WP_PLUGIN_DIR'))
-	define('WP_PLUGIN_DIR', dirname(dirname(__FILE__))); 
-$lang_dir = basename(dirname(__FILE__)). '/languages';
-load_plugin_textdomain( 'content-audit', 'WP_PLUGIN_DIR'.$lang_dir, $lang_dir );
+load_plugin_textdomain( 'content-audit', '', plugin_dir_path(__FILE__) . '/languages' );
 
 // load stuff
 include_once(dirname (__FILE__)."/content-audit-fields.php");
@@ -165,4 +166,3 @@ include_once(dirname (__FILE__)."/content-audit-options.php");
 include_once(dirname (__FILE__)."/content-audit-report.php");
 include_once(dirname (__FILE__)."/content-audit-schedule.php");
 include_once(dirname (__FILE__)."/content-audit-overview.php");
-?>

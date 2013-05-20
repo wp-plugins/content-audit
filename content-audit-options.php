@@ -21,6 +21,11 @@ function content_audit_options() {
 		if (!is_array($options['post_types']))
 			$options['post_types'] = array($options['post_types']);
 		
+		if (isset($options['roles']) && !isset($options['rolenames'])) {
+			$options['rolenames'] = $options['roles'];
+			unset($options['roles']);
+		}
+		
 		global $wp_roles;
 		?>
 
@@ -57,7 +62,7 @@ function content_audit_options() {
 				<li><input type="checkbox" name="content_audit[rolenames][]" value="<?php echo strtolower($role['name']); ?>" 
 					<?php
 					// check the box if this role is included in the new option
-					if ((isset($options['rolenames']) && in_array(strtolower($role['name']), $options['rolenames'])) )
+					if ( isset($options['rolenames']) && in_array( strtolower( $role['name'] ), $options['rolenames']) )
 							echo ' checked="checked"';
 					?> /> <?php echo $role['name']; ?></li>
 			<?php }

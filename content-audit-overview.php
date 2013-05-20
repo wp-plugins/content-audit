@@ -132,7 +132,7 @@ function get_content_audit_meta_values( $key = '', $types = 'page', $status = 'p
 add_filter( 'template_include', 'content_audit_download_template_include' );
 function content_audit_download_template_include( $template ) {
 	if (!isset($_REQUEST['format']) || 'csv' !== $_REQUEST['format'])
-		return;
+		return $template;
 	
 	global $post, $wpdb;
 

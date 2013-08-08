@@ -190,9 +190,10 @@ function save_content_audit_meta_data( $post_id ) {
 		check_admin_referer('content_audit_owner_nonce', '_content_audit_owner_nonce');
 		check_admin_referer('content_audit_exp_date_nonce', 'content_audit_exp_date_nonce');
 	}
+
 	// check quickedit nonces
 	if (defined('DOING_AJAX') && DOING_AJAX) {
-		check_admin_referer('content_audit_owner_nonce', '_content_audit_owner_nonce');
+		check_ajax_referer( 'inlineeditnonce', '_inline_edit' );
 	}
 	
 	// check capabilites

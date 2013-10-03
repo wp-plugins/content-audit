@@ -80,6 +80,9 @@ function content_audit_boxes() {
 		}
 	}
 	add_action('save_post', 'save_content_audit_meta_data');
+	// This hook is needed if only the custom meta boxes' data was saved
+	// (save_post does not fire if no fields changed in the built-in post form)
+	add_action( 'pre_post_update', 'save_content_audit_meta_data' );
 	
 	// don't show taxonomy checkboxes to non-auditors
 	if (!in_array($role, $allowed))  {
@@ -184,6 +187,16 @@ function content_audit_taxes_meta_box() { ?>
 }
 
 function save_content_audit_meta_data( $post_id ) {
+	// check post types
+	// reject this quickly
+	if ( 'nav_menu_item ' == $_POST['post_type'] )
+		return $post_id;
+	
+	// reject the ones we aren't auditing
+	$options = get_option('content_audit');
+	if ( !in_array( $_POST['post_type'], $options['post_types'] ))
+		return $post_id;
+	
 	// check regular edit nonces
 	if (defined('DOING_AJAX') && !DOING_AJAX) {
 		check_admin_referer('content_audit_notes_nonce', '_content_audit_notes_nonce');
@@ -200,7 +213,6 @@ function save_content_audit_meta_data( $post_id ) {
 	global $current_user;
 	get_currentuserinfo();
 	$role = $current_user->roles[0];
-	$options = get_option('content_audit');
 	$allowed = $options['rolenames'];
 	if (!is_array($allowed))
 		$allowed = array($allowed);

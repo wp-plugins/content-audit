@@ -1,5 +1,52 @@
 <?php
 
+// Handle custom count columns on edit term list screens
+add_filter( 'manage_edit-content_audit_columns', 'content_audit_term_count_columns' );
+
+function content_audit_term_count_columns($columns) {
+	if ( !isset( $_GET['post_type'] ) || !post_type_exists( $_GET['post_type'] ) )
+		$post_type = 'post';
+	else
+		$post_type = $_GET['post_type'];
+		
+	$obj = get_post_type_object($post_type);
+	
+    $columns = array(
+        'cb' => '<input type="checkbox" />',
+        'name' => __('Name'),
+        'slug' => __('Slug'),
+//      'posts' => __('Posts'),
+		'audit_term_count_'.$post_type => $obj->labels->name,
+        );
+    return $columns;
+}
+
+add_action( 'manage_content_audit_custom_column',  'content_audit_column_contents', 10, 3  );
+
+function content_audit_column_contents($out, $column_name, $term_id) {
+	if ( !isset( $_GET['post_type'] ) || !post_type_exists( $_GET['post_type'] ) )
+		$post_type = 'post';
+	else
+		$post_type = $_GET['post_type'];
+	
+	$term = get_term($term_id, 'content_audit');
+	
+    switch ($column_name) {
+        case 'audit_term_count_'.$post_type:
+            $count = get_option('_audit_term_count_'.$post_type);
+			$link = add_query_arg( array('post_type' => $post_type, 'content_audit' => $term->slug ) , admin_url('edit.php') );
+            $out .= '<a href="'.$link.'">' . (int) $count[$term_id] .'</a>';
+            break;
+ 
+        default:
+            break;
+    }
+    return $out;   
+}
+
+
+// Handle custom columns on edit post list screens
+
 add_action('admin_init', 'content_audit_column_setup');
 
 function content_audit_column_setup() {

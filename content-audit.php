@@ -3,7 +3,7 @@
 Plugin Name: Content Audit
 Plugin URI: http://sillybean.net/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.5.3
+Version: 1.6
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
@@ -32,7 +32,7 @@ TODO:
 
 // when activated, add option and create taxonomy terms
 register_activation_hook( __FILE__, 'activate_content_audit_tax' );
-register_activation_hook(__FILE__, 'content_audit_activation');
+register_activation_hook( __FILE__, 'content_audit_activation' );
 function content_audit_activation() {
 	if (!function_exists('register_taxonomy_for_object_type')) {
 		deactivate_plugins(basename(__FILE__)); // Deactivate myself
@@ -87,6 +87,7 @@ function content_audit_add_pages() {
 	add_action("admin_head-post-new.php", 'content_audit_css');
 //	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-index.php", 'content_audit_css');
+	add_action("admin_head-edit-tags.php", 'content_audit_css');
 	// Add jQuery UI CSS to post and media screens
 //	add_action( 'admin_print_scripts-edit.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-post.php', 'content_audit_scripts' );
@@ -122,6 +123,8 @@ function content_audit_css() {	?>
 	table#content-audit-outdated td.column-date { padding: 8px .5em 8px 0; width: 30%; }
 	table#content-audit-outdated th.column-date { text-align: left; width: 30%; padding: 0; }
 	label.indent { margin-left: 2em; }
+	th[id^="audit_term_count_"] { width: 10%; }
+	td[class^="audit_term_count_"] { text-align: center; }
 	</style>
 <?php 
 }

@@ -268,6 +268,9 @@ function content_audit_taxes_meta_box() { ?>
 function save_content_audit_meta_data( $post_id ) {
 	// check post types
 	// reject this quickly
+	if ( !isset($_POST['post_type']) )
+		return $post_id;
+		
 	if ( 'nav_menu_item ' == $_POST['post_type'] )
 		return $post_id;
 	

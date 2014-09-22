@@ -3,8 +3,8 @@ Contributors: sillybean
 Tags: content, audit, review, inventory
 Donate Link: http://stephanieleary.com/code/wordpress/content-audit/
 Requires at least: 3.1
-Tested up to: 3.8.1
-Stable tag: 1.6
+Tested up to: 4.0
+Stable tag: 1.6.1
 
 Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review for SEO or style. The plugin creates a custom taxonomy (like a new set of categories) that's visible only from the admin screens. Since the content status labels work just like categories, you can remove the built-in ones and add your own if you like. You can also assign a content owner (distinct from the original author) and keep notes. The IDs are revealed on the Edit screens so you can keep track of your content even if you change titles and permalinks. The plugin supports the new custom content types in 3.0.
 
@@ -37,6 +37,10 @@ If you would like to send me a translation, please write to me through <a href="
 
 == Changelog ==
 
+= 1.6.1 =
+* Fixed notices on post edit screen.
+* Introduced sanitization function for options
+* Escaped SQL get_results() query to prevent injection, as reported by <a href="https://security.dxw.com/">dwxsecurity</a>
 = 1.6 =
 * Audit attribute (term) counts are now totaled per post type. Under 'Pages,' the Content Audit terms' page counts show only pages, not the cumulative number of posts across all post types (which is the WordPress default for counting term totals, and is what was shown in older versions). For cumulative totals, see the top of the Overview screen.
 * Content Audit Attributes are now available to edit under all the post types being audited, not just Pages.

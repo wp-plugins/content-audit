@@ -1,4 +1,61 @@
 <?php
+function content_audit_sanitize_options($input) {
+	
+	$options = array();
+	
+	// valid post types only, please
+	foreach ( $input['post_types'] as $post_type ) {
+		if ( post_type_exists( $post_type ) )
+			$options['post_types'][] = $post_type;
+	}
+	
+	// valid roles only, please
+	foreach ( $input['rolenames'] as $role ) {
+		if ( get_role( $role ) )
+			$options['rolenames'][] = $role;
+	}
+	
+	// do not save injected options
+	if ( in_array( $input['interval'], array( 'daily', 'weekly', 'monthly' ) ) )
+		$options['interval'] = $input['interval'];
+		
+	if ( in_array( $input['outdate_unit'], array( 'days', 'weeks', 'months', 'years' ) ) )
+		$options['outdate_unit'] = $input['outdate_unit'];
+		
+	if ( in_array( $input['display'], array( 'above', 'below' ) ) )
+		$options['display'] = $input['display'];
+	
+	// these should all be zero or one
+	$options['display_switch'] = absint($input['display_switch']);
+	if ($options['display_switch'] > 1) $options['display_switch'] = 0;
+
+	$options['mark_outdated'] = absint($input['mark_outdated']);
+	if ($options['mark_outdated'] > 1) $options['mark_outdated'] = 0;
+
+	$options['notify'] = absint($input['notify']);
+	if ($options['notify'] > 1) $options['notify'] = 0;
+
+	$options['notify_now'] = absint($input['notify_now']);
+	if ($options['notify_now'] > 1) $options['notify_now'] = 0;
+
+	$options['notify_authors'] = absint($input['notify_authors']);
+	if ($options['notify_authors'] > 1) $options['notify_authors'] = 0;
+	
+	// this can be any integer
+	$options['outdate'] = absint($input['outdate']);
+	
+	// sanitize css
+	$options['css'] = sanitize_text_field($input['css']);
+	
+	/*
+	// testing
+	var_dump($input);
+	var_dump($options); exit;
+	/**/
+	
+	return $options;
+}
+
 // displays the options page content
 function content_audit_options() {
 	// clear and redo the schedules now in case they changed
@@ -9,7 +66,10 @@ function content_audit_options() {
 	<form method="post" id="content_audit_form" action="options.php">
 		<?php settings_fields('content_audit'); 
 		$options = get_option('content_audit');
+		
+		// testing
 		// var_dump($options); 
+		
 		// convert from old options
 		if (isset($options['types']) && !isset($options['post_types'])) { 
 			$options['post_types'] = array();
@@ -153,4 +213,3 @@ function content_audit_options() {
 	</div>
 <?php 
 } // end function content_audit_options() 
-?>

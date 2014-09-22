@@ -400,5 +400,3 @@ function content_audit_dashboard_widget_setup() {
 }
 
 add_action('wp_dashboard_setup', 'content_audit_dashboard_widget_setup');
-
-?>

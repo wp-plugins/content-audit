@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Content Audit
-Plugin URI: http://sillybean.net/code/wordpress/content-audit/
+Plugin URI: http://stephanieleary.com/code/wordpress/content-audit/
 Description: Lets you create a content inventory and notify the responsible parties about their outdated content. 
-Version: 1.6
+Version: 1.6.1
 Author: Stephanie Leary
-Author URI: http://sillybean.net/
+Author URI: http://stephanieleary.com
 
 Copyright 2010  Stephanie Leary  (email : steph@sillybean.net)
 
@@ -60,7 +60,7 @@ p.content-notes { font-style: italic; }';
 // register options
 add_action('admin_init', 'register_content_audit_options' );
 function register_content_audit_options(){
-	register_setting( 'content_audit', 'content_audit' );
+	register_setting( 'content_audit', 'content_audit', 'content_audit_sanitize_options' );
 }
 
 // when uninstalled, remove option
@@ -85,16 +85,13 @@ function content_audit_add_pages() {
 	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-post.php", 'content_audit_css');
 	add_action("admin_head-post-new.php", 'content_audit_css');
-//	add_action("admin_head-edit.php", 'content_audit_css');
 	add_action("admin_head-index.php", 'content_audit_css');
 	add_action("admin_head-edit-tags.php", 'content_audit_css');
 	// Add jQuery UI CSS to post and media screens
-//	add_action( 'admin_print_scripts-edit.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-post.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-post-new.php', 'content_audit_scripts' );
 	add_action( 'admin_print_scripts-media.php', 'content_audit_scripts' );
-	// initialize datepicker on post ane media screens
-//	add_action( 'admin_footer-edit.php', 'content_audit_admin_footer' );
+	// initialize datepicker on post and media screens
 	add_action( 'admin_footer-post.php', 'content_audit_admin_footer' );
 	add_action( 'admin_footer-post-new.php', 'content_audit_admin_footer' );
 	add_action( 'admin_footer-media.php', 'content_audit_admin_footer' );
@@ -104,9 +101,8 @@ function content_audit_add_pages() {
 
 function content_audit_css() {	?>
 	<style type="text/css">
-	#content_audit_types li, #content_audit_roles li { display: inline; padding-right: 2em; }
+	#content_audit_types li, #content_audit_roles li { list-style: none; padding-right: 2em; }
 	#content_audit_meta label { padding-right: 2em; }
-	#content_audit_meta, #content_audit_meta .inside { overflow: auto; }
 	#audit-notes { width: 100%; }
 	#audit-notes textarea { width: 99%; margin: 0 1em 1em 0; }
 	#content_audit_form textarea { display: block; width: 30em; height: 10em; }

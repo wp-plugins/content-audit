@@ -40,6 +40,7 @@ If you would like to send me a translation, please write to me through <a href="
 = 1.6.2 =
 * Corrected a problem in the outdated query introduced in 1.6.1.
 * Fixed notices on settings screen.
+* Updated POT.
 = 1.6.1 =
 * Fixed notices on post edit screen.
 * Introduced sanitization function for options

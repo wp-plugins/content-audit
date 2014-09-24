@@ -1,0 +1,311 @@
+# Copyright (C) 2014 Content Audit
+# This file is distributed under the same license as the Content Audit package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Content Audit 1.6.2\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/content-audit\n"
+"POT-Creation-Date: 2014-09-24 15:56:43+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2014-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: content-audit-fields.php:23
+msgid "Content Audit Attributes"
+msgstr ""
+
+#: content-audit-fields.php:31
+msgid "Outdated"
+msgstr ""
+
+#: content-audit-fields.php:108
+msgid "Redundant"
+msgstr ""
+
+#: content-audit-fields.php:109
+msgid "Trivial"
+msgstr ""
+
+#: content-audit-fields.php:110
+msgid "Review SEO"
+msgstr ""
+
+#: content-audit-fields.php:111
+msgid "Review Style"
+msgstr ""
+
+#: content-audit-fields.php:112
+msgid "Audited"
+msgstr ""
+
+#: content-audit-fields.php:149 content-audit-fields.php:379
+#: content-audit-fields.php:547
+msgid "Content Audit Notes"
+msgstr ""
+
+#: content-audit-fields.php:150 content-audit-fields.php:527
+#: content-audit-overview.php:53 content-audit-report.php:143
+#: content-audit-report.php:306
+msgid "Content Owner"
+msgstr ""
+
+#: content-audit-fields.php:151 content-audit-fields.php:385
+msgid "Expiration Date"
+msgstr ""
+
+#. #-#-#-#-#  plugin.pot (Content Audit 1.6.2)  #-#-#-#-#
+#. Plugin Name of the plugin/theme
+#: content-audit-fields.php:158 content-audit.php:79
+msgid "Content Audit"
+msgstr ""
+
+#: content-audit-fields.php:220 content-audit-fields.php:368
+#: content-audit-fields.php:533
+msgid "Select a user"
+msgstr ""
+
+#: content-audit-fields.php:373
+msgid "Content Audit Owner"
+msgstr ""
+
+#: content-audit-fields.php:411
+msgid "Audit"
+msgstr ""
+
+#: content-audit-fields.php:442
+msgid "Move to Trash"
+msgstr ""
+
+#: content-audit-fields.php:453
+msgid "Download Audit Report"
+msgstr ""
+
+#: content-audit-fields.php:564
+msgid "Content Audit Expiration"
+msgstr ""
+
+#: content-audit-fields.php:564
+msgid " (m/d/y)"
+msgstr ""
+
+#: content-audit-options.php:95 content-audit.php:79
+msgid "Content Audit Options"
+msgstr ""
+
+#: content-audit-options.php:99
+msgid "Audited content types"
+msgstr ""
+
+#: content-audit-options.php:121
+msgid "Users allowed to audit"
+msgstr ""
+
+#: content-audit-options.php:139
+msgid "Outdated content"
+msgstr ""
+
+#: content-audit-options.php:143
+msgid "Automatically mark content as outdated if it has not been modified in"
+msgstr ""
+
+#: content-audit-options.php:146
+msgid "days"
+msgstr ""
+
+#: content-audit-options.php:147
+msgid "weeks"
+msgstr ""
+
+#: content-audit-options.php:148
+msgid "months"
+msgstr ""
+
+#: content-audit-options.php:149
+msgid "years"
+msgstr ""
+
+#: content-audit-options.php:157
+msgid "Email notifications"
+msgstr ""
+
+#: content-audit-options.php:162
+msgid "Notify content owners of outdated content"
+msgstr ""
+
+#: content-audit-options.php:163
+msgid "How often?"
+msgstr ""
+
+#: content-audit-options.php:165
+msgid "once a day"
+msgstr ""
+
+#: content-audit-options.php:166
+msgid "once a week"
+msgstr ""
+
+#: content-audit-options.php:167
+msgid "once a month"
+msgstr ""
+
+#: content-audit-options.php:172
+msgid "Send notifications now"
+msgstr ""
+
+#: content-audit-options.php:176
+msgid "Notify original author if no owner is selected"
+msgstr ""
+
+#: content-audit-options.php:181
+msgid "Front end display"
+msgstr ""
+
+#: content-audit-options.php:186
+msgid "Display content status, notes, and owner to logged-in auditors "
+msgstr ""
+
+#: content-audit-options.php:188
+msgid "Where?"
+msgstr ""
+
+#: content-audit-options.php:190
+msgid "above content"
+msgstr ""
+
+#: content-audit-options.php:191
+msgid "below content"
+msgstr ""
+
+#: content-audit-options.php:193
+msgid "."
+msgstr ""
+
+#: content-audit-options.php:197
+msgid "CSS for front end display"
+msgstr ""
+
+#: content-audit-options.php:205
+msgid "Content attributes"
+msgstr ""
+
+#: content-audit-options.php:207
+msgid "Edit content audit attributes"
+msgstr ""
+
+#: content-audit-options.php:213
+msgid "Update Options"
+msgstr ""
+
+#: content-audit-overview.php:30 content-audit.php:81
+msgid "Content Audit Overview"
+msgstr ""
+
+#: content-audit-report.php:16
+msgid "Name"
+msgstr ""
+
+#: content-audit-report.php:17
+msgid "Slug"
+msgstr ""
+
+#: content-audit-report.php:144
+msgid "Content Status"
+msgstr ""
+
+#: content-audit-report.php:145
+msgid "Notes"
+msgstr ""
+
+#: content-audit-report.php:152
+msgid "Expiration"
+msgstr ""
+
+#: content-audit-report.php:155
+msgid "ID"
+msgstr ""
+
+#: content-audit-report.php:241
+msgid "Show all statuses"
+msgstr ""
+
+#: content-audit-report.php:266
+msgid "Show all owners"
+msgstr ""
+
+#: content-audit-report.php:280
+msgid "Show all authors"
+msgstr ""
+
+#: content-audit-report.php:312
+msgid "None"
+msgstr ""
+
+#: content-audit-report.php:348
+msgid "Content status: "
+msgstr ""
+
+#: content-audit-report.php:351
+msgid "Assigned to: "
+msgstr ""
+
+#: content-audit-report.php:388
+msgid "Last Modified"
+msgstr ""
+
+#: content-audit-report.php:389
+msgid "See all..."
+msgstr ""
+
+#: content-audit-report.php:394
+msgid "Congratulations! All your content is up to date."
+msgstr ""
+
+#: content-audit-report.php:395
+msgid "<a href=\"%s\">Content Audit Overview</a>"
+msgstr ""
+
+#: content-audit-report.php:399
+msgid "Outdated Content"
+msgstr ""
+
+#: content-audit-schedule.php:11
+msgid "Once a Week"
+msgstr ""
+
+#: content-audit-schedule.php:15
+msgid "Once a Month"
+msgstr ""
+
+#: content-audit-schedule.php:110
+msgid "Outdated content report:"
+msgstr ""
+
+#: content-audit-schedule.php:111
+msgid "The following articles are outdated. Please review them:"
+msgstr ""
+
+#: content-audit-schedule.php:112
+msgid ""
+"If the article does not need to be updated, just uncheck the \"Outdated\" "
+"box and press the \"Update\" button."
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://stephanieleary.com/code/wordpress/content-audit/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Lets you create a content inventory and notify the responsible parties about "
+"their outdated content."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Stephanie Leary"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://stephanieleary.com"
+msgstr ""

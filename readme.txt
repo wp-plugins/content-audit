@@ -4,7 +4,7 @@ Tags: content, audit, review, inventory
 Donate Link: http://stephanieleary.com/code/wordpress/content-audit/
 Requires at least: 3.1
 Tested up to: 4.0
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 
 Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review for SEO or style. The plugin creates a custom taxonomy (like a new set of categories) that's visible only from the admin screens. Since the content status labels work just like categories, you can remove the built-in ones and add your own if you like. You can also assign a content owner (distinct from the original author) and keep notes. The IDs are revealed on the Edit screens so you can keep track of your content even if you change titles and permalinks. The plugin supports the new custom content types in 3.0.
 
@@ -37,6 +37,9 @@ If you would like to send me a translation, please write to me through <a href="
 
 == Changelog ==
 
+= 1.6.2 =
+* Corrected a problem in the outdated query introduced in 1.6.1.
+* Fixed notices on settings screen.
 = 1.6.1 =
 * Fixed notices on post edit screen.
 * Introduced sanitization function for options

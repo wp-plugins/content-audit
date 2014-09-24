@@ -86,6 +86,9 @@ function content_audit_options() {
 			unset($options['roles']);
 		}
 		
+		if (!isset($options['display']))
+			$options['display'] = 0;
+		
 		global $wp_roles;
 		?>
 

@@ -123,11 +123,14 @@ function content_audit_get_outdated() {
 	if (empty($options['post_types'])) 
 		return false;
 
-	$posttypes = implode($options['post_types'], ',');
+	$safe_posttypes = array();
+	foreach($options['post_types'] as $type)
+		$safe_posttypes[] = $wpdb->prepare('%s', $type);
+	$types = implode(',', $safe_posttypes);
 	$longago = date('Y-m-d', strtotime('-'.$options['outdate'].' '.$options['outdate_unit']));
 	$oldposts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title, post_author, post_type, post_modified 
-			FROM $wpdb->posts WHERE post_type IN (%s) AND post_modified <= %s
-			ORDER BY post_type, post_modified ASC"), $posttypes, $longago );
-	
+			FROM $wpdb->posts WHERE post_type IN ({$types}) AND post_modified <= %s
+			ORDER BY post_type, post_modified ASC", $longago) );
+
 	return $oldposts;
 }

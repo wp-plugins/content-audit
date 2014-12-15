@@ -144,8 +144,8 @@ function content_audit_download_template_include( $template ) {
 	$options = get_option('content_audit'); 
 	$types = $options['post_types'];
 	
-	header('Content-type: text/plain');
-	header('Content-Disposition: attachment; filename="content-audit-'.date('Ymdu').'.csv"');
+	header( 'Content-type: text/plain' );
+	header( 'Content-Disposition: attachment; filename="content-audit-'.date('Ymdu').'.csv"' );
 
 	echo $before . implode($headersep, $tableheaders) . $after;
 	
@@ -157,25 +157,26 @@ function content_audit_download_template_include( $template ) {
 		'order' => 'ASC'
 	));
 
-	foreach ($results as $post) {
+	foreach ( $results as $post ) {
 		$the_terms = '';
-		$terms = get_the_terms( $post->ID, 'content_audit' );
-		if (!empty($terms))
-			foreach ($terms as $term)
-				$the_terms .= $term->name.', ';
-		rtrim(', ', $the_terms);
+		$terms = get_the_term_list( $post->ID, 'content_audit', '', ', ', '' );
+		$terms = strip_tags( $terms );
+		
+		$author = get_userdata( $post->post_author );
+		$owner = get_userdata( get_post_meta( $post->ID, '_content_audit_owner', true ) );
+		$expiration = date( get_option( 'date_format' ), get_post_meta($post->ID, '_content_audit_expiration_date', true) );
 	
 		echo $before.
-			$post->ID.$sep.
-			$post->post_title.$sep.
-			$post->post_author.$sep.
-			get_post_meta($post->ID, '_content_audit_owner', true).$sep.
-			$the_terms.$sep.
-			get_post_meta($post->ID, '_content_audit_notes', true).$sep.
-			$post->post_type.$sep.
-			get_the_date($date_format).$sep.
-			the_modified_date($date_format, '', '', false).$sep.
-			get_post_meta($post->ID, '_content_audit_expiration_date', true).$sep.
+			$post->ID . $sep.
+			$post->post_title . $sep.
+			$author->display_name . $sep.
+			$owner->display_name . $sep .
+			$terms . $sep .
+			get_post_meta($post->ID, '_content_audit_notes', true) . $sep .
+			$post->post_type . $sep .
+			get_the_date($date_format) . $sep .
+			the_modified_date($date_format, '', '', false) . $sep .
+			$expiration . $sep .
 			$after;
 	}
 

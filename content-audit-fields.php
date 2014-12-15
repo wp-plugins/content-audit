@@ -105,11 +105,14 @@ function content_audit_term_count($terms, $taxonomy) {
 }
 
 function activate_content_audit_terms() {
-	wp_insert_term( __('Redundant', 'content-audit'), 'content_audit');
-	wp_insert_term( __('Trivial', 'content-audit'), 'content_audit' );
-	wp_insert_term( __('Review SEO', 'content-audit'), 'content_audit' );
-	wp_insert_term( __('Review Style', 'content-audit'), 'content_audit' );
-	wp_insert_term( __('Audited', 'content-audit'), 'content_audit' );
+	$terms = get_terms( 'content-audit', array( 'hide_empty' => false, 'fields' => 'ids' ) );
+	if ( !empty( $terms ) ) {		
+		wp_insert_term( __('Redundant', 'content-audit'), 'content_audit');
+		wp_insert_term( __('Trivial', 'content-audit'), 'content_audit' );
+		wp_insert_term( __('Review SEO', 'content-audit'), 'content_audit' );
+		wp_insert_term( __('Review Style', 'content-audit'), 'content_audit' );
+		wp_insert_term( __('Audited', 'content-audit'), 'content_audit' );
+	}
 }
 
 add_action('admin_init', 'content_audit_taxonomies');

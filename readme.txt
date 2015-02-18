@@ -4,19 +4,25 @@ Tags: content, audit, review, inventory
 Donate Link: http://stephanieleary.com/code/wordpress/content-audit/
 Requires at least: 3.1
 Tested up to: 4.1
-Stable tag: 1.6.3
+Stable tag: 1.7
 
-Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review for SEO or style. The plugin creates a custom taxonomy (like a new set of categories) that's visible only from the admin screens. Since the content status labels work just like categories, you can remove the built-in ones and add your own if you like. You can also assign a content owner (distinct from the original author) and keep notes. The IDs are revealed on the Edit screens so you can keep track of your content even if you change titles and permalinks. The plugin supports the new custom content types in 3.0.
+Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review.
+
+== Description ==
+
+Lets you create a content inventory right in the WordPress Edit screens, similar to the process you might use to assess your site's content in a spreadsheet. You can mark content as redundant, outdated, trivial, or in need of a review for SEO or style. These content status labels work just like categories, so you can remove the built-in ones and add your own if you like. You can also assign a content owner (distinct from the original author) and keep internal notes. The IDs are revealed on the Edit screens so you can keep track of your content even if you change titles and permalinks. The plugin supports custom post types as well as posts, pages, and media files.
 
 There's an Overview report under the Dashboard menu that shows you which posts/pages/attachments/etc. need attention, sorted by user. This screen also lets you export a CSV file of the audit report.
 
-The plugin also creates three new filters on the Edit screens: author, content owner, and content status. This should make it easy to narrow your focus to just a few pages at a time.
+The plugin creates three new filters on the Edit screens: author, content owner, and content status. This should make it easy to narrow your focus to just a few pages at a time.
 
-You can display the audit details to logged-in editors on the front end if you want, either above or below the content. You can style the audit message.
+You can display the audit details to logged-in editors on the front end if you want, either above or below the content. You can style the audit message with custom CSS.
 
 If you want to see sparklines from Google Analytics, also install the <a href="http://www.ioncannon.net/projects/google-analytics-dashboard-wordpress-widget/">Google Analytics Dashboard plugin</a>. This will give you some idea of how popular an article is, which might influence your decisions.
 
-== Translations ==
+<strong>New:</strong> you can now clear data from past audits and start over!
+
+= Translations =
 
 If you would like to send me a translation, please write to me through <a href="http://sillybean.net/about/contact/">my contact page</a>. Let me know which plugin you've translated and how you would like to be credited. I will write you back so you can attach the files in your reply.
 
@@ -35,11 +41,20 @@ If you would like to send me a translation, please write to me through <a href="
 1. Quick Edit with the Content Audit fields
 1. Categorizing a page from the front end using the admin bar
 
+== Upgrade Notice ==
+
+= 1.7 =
+New: an option to clear data from previous audits and start over.
+
 == Changelog ==
 
-= 1.6.3 =
-* Improved CSV export.
-* Insert taxonomy terms on activation only if none exist. 
+= 1.7 =
+* New option to delete information from previous content audits and start over. The audit attribute terms themselves are preserved and can be reused, but they will no longer be assigned to posts/pages.
+* Term descriptions added to the default audit attributes. Thanks to @garyj for the suggestion.
+* Removed old media attachment fields to edit, which were duplicated now that attachments use post.php.
+* Updated custom CSS option to meet current security guidelines. (Bonus: line breaks are now preserved! Yay!)
+* Cleaned up JS and CSS enqueueing.
+* Updated POT.
 = 1.6.2 =
 * Corrected a problem in the outdated query introduced in 1.6.1.
 * Fixed notices on settings screen.
@@ -84,11 +99,11 @@ If you would like to send me a translation, please write to me through <a href="
 * Bugfix: All the default attributes are now created when the plugin is first activated. (Only Outdated appeared before.)
 * Bugfix: Auditing media files no longer prevents you from editing titles and descriptions.
 * Bugfix: Audit fields are shown for media files ONLY when you have chosen to audit media.
-* Various warnings and notices cleaned up (thanks to <a href="http://www.linkedin.com/in/davidmdoolin">David Doolin</a>).
+* Various warnings and notices cleaned up ( thanks to <a href="http://www.linkedin.com/in/davidmdoolin">David Doolin</a> ).
 * Compatibility fixes for WP 3.2.
 = 1.2.1 =
 * Bugfix: The option to show the status and notes to logged-in users will now respect the checkbox
-* Bugfix: You should now be able to delete all the built-in status categories except Outdated (which is used by the auto-outdate feature).
+* Bugfix: You should now be able to delete all the built-in status categories except Outdated ( which is used by the auto-outdate feature ).
 = 1.2 =
 * New feature: Automatically mark content as outdated after a certain period of time
 * New feature: Email content owners (or original authors) a summary of outdated content

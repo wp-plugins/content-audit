@@ -1,6 +1,6 @@
-jQuery(document).ready( function() {
+jQuery( document ).ready( function() {
 	// make this work for elements added in the future, i.e. quick edit fields
-	jQuery(document).on('focus', '.content_audit_owner', function(){	
+	jQuery( document ).on( 'focus', '.content_audit_owner', function(){	
 		function split( val ) {
 			return val.split( /,\s*/ );
 		}
@@ -13,7 +13,7 @@ jQuery(document).ready( function() {
 				position.my = 'right top';
 				position.at = 'right bottom';
 			}
-			jQuery(this).autocomplete({ 
+			jQuery( this ).autocomplete( { 
 				source: ajaxurl + '?action=content-owner-search&autocomplete_type=search&autocomplete_field=user_login',
 				focus: function() {
 					// prevent value inserted on focus
@@ -37,12 +37,12 @@ jQuery(document).ready( function() {
 				multiple: true,
 				position:  position, 
 					open: function() { 
-						jQuery(this).addClass( 'open' ); 
+						jQuery( this ).addClass( 'open' ); 
 					}, 
 					close: function() { 
-						jQuery(this).removeClass( 'open' ); 
+						jQuery( this ).removeClass( 'open' ); 
 					} 
-			}); 
-		});
-	});
+			} ); 
+		} );
+	} );
 } );

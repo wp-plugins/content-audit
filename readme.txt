@@ -4,7 +4,7 @@ Tags: content, audit, review, inventory
 Donate Link: http://stephanieleary.com/code/wordpress/content-audit/
 Requires at least: 3.1
 Tested up to: 4.1
-Stable tag: 1.6.2
+Stable tag: 1.7
 
 Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review.
 

@@ -34,8 +34,9 @@ function content_audit_column_contents( $out, $column_name, $term_id ) {
     switch ( $column_name ) {
         case 'audit_term_count_'.$post_type:
             $count = get_option( '_audit_term_count_'.$post_type );
+			isset( $count[$term_id] ) ? $num = ( int ) $count[$term_id] : $num = 0;
 			$link = add_query_arg( array( 'post_type' => $post_type, 'content_audit' => $term->slug ) , admin_url( 'edit.php' ) );
-            $out .= '<a href="'.$link.'">' . ( int ) $count[$term_id] .'</a>';
+	        $out .= sprintf( '<a href="%s">%d</a>', $link, $num );
             break;
  
         default:

@@ -54,6 +54,7 @@ New: an option to clear data from previous audits and start over.
 * Removed old media attachment fields to edit, which were duplicated now that attachments use post.php.
 * Updated custom CSS option to meet current security guidelines. (Bonus: line breaks are now preserved! Yay!)
 * Cleaned up JS and CSS enqueueing.
+* Cleaned up notices.
 * Updated POT.
 = 1.6.2 =
 * Corrected a problem in the outdated query introduced in 1.6.1.

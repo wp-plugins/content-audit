@@ -38,6 +38,7 @@ function content_audit_activation() {
 }
 
 function content_audit_default_options() {
+	
 	// set defaults
 	$options = array();	
 	$options['post_types'] = array( 'page' );

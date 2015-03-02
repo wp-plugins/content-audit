@@ -4,7 +4,9 @@ Tags: content, audit, review, inventory
 Donate Link: http://stephanieleary.com/code/wordpress/content-audit/
 Requires at least: 3.1
 Tested up to: 4.1
-Stable tag: 1.7
+Stable tag: 1.8
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Lets you create a content inventory right in the WordPress Edit screens. You can mark content as redundant, outdated, trivial, or in need of a review.
 
@@ -48,6 +50,8 @@ New: an option to clear data from previous audits and start over.
 
 == Changelog ==
 
+= 1.8 =
+* Better CSV export.
 = 1.7 =
 * New option to delete information from previous content audits and start over. The audit attribute terms themselves are preserved and can be reused, but they will no longer be assigned to posts/pages.
 * Term descriptions added to the default audit attributes. Thanks to @garyj for the suggestion.

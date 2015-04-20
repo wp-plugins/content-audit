@@ -3,7 +3,7 @@ Contributors: sillybean
 Tags: content, audit, review, inventory
 Donate Link: http://stephanieleary.com/code/wordpress/content-audit/
 Requires at least: 3.1
-Tested up to: 4.1
+Tested up to: 4.2
 Stable tag: 1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
